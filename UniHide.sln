@@ -1,0 +1,57 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.3.32804.467
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UniDetect", "UniDetect\UniDetect.vcxproj", "{14F965A0-E341-46C8-871B-E8C2563AE5CD}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UniSpooferDriver", "UniSpooferDriver\UniSpooferDriver.vcxproj", "{DDFB771A-281A-4AF1-9F61-6D4EDF0D82EF}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|ARM64 = Debug|ARM64
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|ARM64 = Release|ARM64
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{14F965A0-E341-46C8-871B-E8C2563AE5CD}.Debug|ARM64.ActiveCfg = Debug|x64
+		{14F965A0-E341-46C8-871B-E8C2563AE5CD}.Debug|ARM64.Build.0 = Debug|x64
+		{14F965A0-E341-46C8-871B-E8C2563AE5CD}.Debug|x64.ActiveCfg = Debug|x64
+		{14F965A0-E341-46C8-871B-E8C2563AE5CD}.Debug|x64.Build.0 = Debug|x64
+		{14F965A0-E341-46C8-871B-E8C2563AE5CD}.Debug|x86.ActiveCfg = Debug|Win32
+		{14F965A0-E341-46C8-871B-E8C2563AE5CD}.Debug|x86.Build.0 = Debug|Win32
+		{14F965A0-E341-46C8-871B-E8C2563AE5CD}.Release|ARM64.ActiveCfg = Release|x64
+		{14F965A0-E341-46C8-871B-E8C2563AE5CD}.Release|ARM64.Build.0 = Release|x64
+		{14F965A0-E341-46C8-871B-E8C2563AE5CD}.Release|x64.ActiveCfg = Release|x64
+		{14F965A0-E341-46C8-871B-E8C2563AE5CD}.Release|x64.Build.0 = Release|x64
+		{14F965A0-E341-46C8-871B-E8C2563AE5CD}.Release|x86.ActiveCfg = Release|Win32
+		{14F965A0-E341-46C8-871B-E8C2563AE5CD}.Release|x86.Build.0 = Release|Win32
+		{DDFB771A-281A-4AF1-9F61-6D4EDF0D82EF}.Debug|ARM64.ActiveCfg = Debug|ARM64
+		{DDFB771A-281A-4AF1-9F61-6D4EDF0D82EF}.Debug|ARM64.Build.0 = Debug|ARM64
+		{DDFB771A-281A-4AF1-9F61-6D4EDF0D82EF}.Debug|ARM64.Deploy.0 = Debug|ARM64
+		{DDFB771A-281A-4AF1-9F61-6D4EDF0D82EF}.Debug|x64.ActiveCfg = Debug|x64
+		{DDFB771A-281A-4AF1-9F61-6D4EDF0D82EF}.Debug|x64.Build.0 = Debug|x64
+		{DDFB771A-281A-4AF1-9F61-6D4EDF0D82EF}.Debug|x64.Deploy.0 = Debug|x64
+		{DDFB771A-281A-4AF1-9F61-6D4EDF0D82EF}.Debug|x86.ActiveCfg = Debug|x64
+		{DDFB771A-281A-4AF1-9F61-6D4EDF0D82EF}.Debug|x86.Build.0 = Debug|x64
+		{DDFB771A-281A-4AF1-9F61-6D4EDF0D82EF}.Debug|x86.Deploy.0 = Debug|x64
+		{DDFB771A-281A-4AF1-9F61-6D4EDF0D82EF}.Release|ARM64.ActiveCfg = Release|ARM64
+		{DDFB771A-281A-4AF1-9F61-6D4EDF0D82EF}.Release|ARM64.Build.0 = Release|ARM64
+		{DDFB771A-281A-4AF1-9F61-6D4EDF0D82EF}.Release|ARM64.Deploy.0 = Release|ARM64
+		{DDFB771A-281A-4AF1-9F61-6D4EDF0D82EF}.Release|x64.ActiveCfg = Release|x64
+		{DDFB771A-281A-4AF1-9F61-6D4EDF0D82EF}.Release|x64.Build.0 = Release|x64
+		{DDFB771A-281A-4AF1-9F61-6D4EDF0D82EF}.Release|x64.Deploy.0 = Release|x64
+		{DDFB771A-281A-4AF1-9F61-6D4EDF0D82EF}.Release|x86.ActiveCfg = Release|x64
+		{DDFB771A-281A-4AF1-9F61-6D4EDF0D82EF}.Release|x86.Build.0 = Release|x64
+		{DDFB771A-281A-4AF1-9F61-6D4EDF0D82EF}.Release|x86.Deploy.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {C10592D4-22EA-46F9-BA08-B1B2561FED93}
+	EndGlobalSection
+EndGlobal
