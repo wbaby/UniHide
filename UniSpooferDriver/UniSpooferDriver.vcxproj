@@ -98,7 +98,7 @@
       <SDLCheck>false</SDLCheck>
     </ClCompile>
     <Link>
-      <EntryPointSymbol>DriverEntry</EntryPointSymbol>
+      <EntryPointSymbol>DriverEntryInit</EntryPointSymbol>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -112,7 +112,7 @@
       <SDLCheck>false</SDLCheck>
     </ClCompile>
     <Link>
-      <EntryPointSymbol>DriverEntry</EntryPointSymbol>
+      <EntryPointSymbol>DriverEntryInit</EntryPointSymbol>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
@@ -142,6 +142,7 @@
     <ClInclude Include="cpp.h" />
     <ClInclude Include="data.h" />
     <ClInclude Include="dictionary.h" />
+    <ClInclude Include="hdd.h" />
     <ClInclude Include="macros.h" />
     <ClInclude Include="main.h" />
     <ClInclude Include="MemoryEx.h" />
@@ -153,6 +154,7 @@
     <ClCompile Include="collector.cpp" />
     <ClCompile Include="cpp.cpp" />
     <ClCompile Include="data.cpp" />
+    <ClCompile Include="hdd.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MemoryEx.cpp" />
     <ClCompile Include="StringEx.cpp" />

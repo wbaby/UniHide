@@ -20,7 +20,9 @@ NTSTATUS DriverEntryInit(PDRIVER_OBJECT pDriverObject, PUNICODE_STRING pRegistry
     Collector::Init();
     globals::Init();
 
-    DbgMsg("Second driver section: %p", pDriverObject->DriverSection);
+    DbgMsg("Successfully initialized driver");
+
+    SpoofHDD();
 
     return STATUS_SUCCESS;
 }

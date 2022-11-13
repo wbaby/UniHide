@@ -6,9 +6,7 @@
 typedef int BOOL;
 
 typedef struct Globals {
-	static ULONGLONG ModuleAddress;
-	static PDEVICE_OBJECT pDeviceObject;
-	static PUNICODE_STRING dev, dos;
+	static WCHAR RURIKeyPath[512];
 
 	static void Init();
 } globals;

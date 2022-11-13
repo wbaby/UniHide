@@ -29,6 +29,12 @@
     <Filter Include="Source Files\common">
       <UniqueIdentifier>{1e330394-c1bf-4f06-9aa5-9a05c6bfaac0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\hdd">
+      <UniqueIdentifier>{2a72d2fb-9038-41ea-bc4d-962e3630dde4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\hdd">
+      <UniqueIdentifier>{67f4f74d-5ead-4781-ace0-d17ceff2b83b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Inf Include="UniSpooferDriver.inf">
@@ -66,6 +72,9 @@
     <ClInclude Include="macros.h">
       <Filter>Header Files\common</Filter>
     </ClInclude>
+    <ClInclude Include="hdd.h">
+      <Filter>Header Files\hdd</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -88,6 +97,9 @@
     </ClCompile>
     <ClCompile Include="data.cpp">
       <Filter>Source Files\common</Filter>
+    </ClCompile>
+    <ClCompile Include="hdd.cpp">
+      <Filter>Source Files\hdd</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

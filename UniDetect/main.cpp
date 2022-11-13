@@ -8,5 +8,7 @@ int main() {
 		printf("Serial for device %C: %s\n", descriptor.driver_letter, descriptor.serial.c_str());
 	}
 
+	system("pause");
+
 	return 0;
 }
