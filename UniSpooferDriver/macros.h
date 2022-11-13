@@ -1,18 +1,21 @@
 #pragma once
 
-#define VERSION 0.0.5
-
 #define _DEBUG
+#define _KDMAPPED
 
-#ifndef _CLIENT
 #ifdef _DEBUG
 #define DbgMsg(x, ...) DbgPrintEx(0, 0, x, __VA_ARGS__)
-
-//If DRIVER_TAG is defined then the new overload will allocate pools of tagged memory
-//It needs to be written in reverse since debuggers display such tag in little endian, rDyM becomes MyDr(MyDriver)
 #else 
 #define DbgMsg(x, ...)
+#pragma warning (disable:4390)
 #endif
+
+#ifndef _KDMAPPED
+#define EntryInit DriverEntryInit
+#define EntryPoint DriverEntry
+#else
+#define EntryInit DriverEntry
+#define EntryPoint DriverEntryInit
 #endif
 
 //Functions
@@ -25,9 +28,3 @@
 #define DRIVER_NAME "Loader"
 #define DRIVER_LNK_NAME "Loader"
 #define DRIVER_IMPORT_API extern "C"
-#define INJ_DRIVER		"npcap.sys"
-
-//Define
-#define SIOCTL_TYPE 40000
-#define IOCTL_HELLO\
- CTL_CODE( SIOCTL_TYPE, 0x800, METHOD_BUFFERED, FILE_READ_DATA|FILE_WRITE_DATA)

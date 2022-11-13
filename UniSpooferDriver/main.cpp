@@ -1,18 +1,18 @@
 #include "main.h"
 
-NTSTATUS DriverEntry(PDRIVER_OBJECT pDriverObject, PUNICODE_STRING pRegistryPath)
+NTSTATUS EntryPoint(PDRIVER_OBJECT pDriverObject, PUNICODE_STRING pRegistryPath)
 {
     UNREFERENCED_PARAMETER(pRegistryPath);
     DbgMsg("Redirecting to Driver Entry..");
     UNICODE_STRING driver_name;
     NTSTATUS status;
     RtlInitUnicodeString(&driver_name, L"\\Driver\\Loader");
-    status = IoCreateDriver(&driver_name, &DriverEntryInit);
+    status = IoCreateDriver(&driver_name, &EntryInit);
 
     return status;
 }
 
-NTSTATUS DriverEntryInit(PDRIVER_OBJECT pDriverObject, PUNICODE_STRING pRegistryPath)
+NTSTATUS EntryInit(PDRIVER_OBJECT pDriverObject, PUNICODE_STRING pRegistryPath)
 {
     UNREFERENCED_PARAMETER(pRegistryPath);
     pDriverObject->DriverUnload = (PDRIVER_UNLOAD)UnloadDriver;

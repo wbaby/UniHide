@@ -4,7 +4,15 @@ using namespace hdd;
 
 Error hdd::SetupHDD()
 {
-	auto parser = PdbParser(L"C:\\symbols\\storport.pdb\\D7F839E51298E4B81B36CA86B63793571\\storport.pdb");
+	if (!std::filesystem::exists(".\\storport.pdb")) {
+		if (!std::filesystem::exists("PDBDownloader.exe")) {
+			printf("PDBDownloader not found, please tr to restart or reinstall the application\n");
+			return Error::NotFound;
+		}
+		system("PDBDownloader.exe C:\\Windows\\System32\\drivers\\storport.sys .\\");
+	}
+
+	auto parser = PdbParser(L".\\storport.pdb");
 
 	size_t dwRVA = parser.GetFunctionRVA(L"RaidUnitRegisterInterfaces");
 	

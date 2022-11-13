@@ -112,6 +112,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -121,7 +122,8 @@
     <PostBuildEvent>
       <Command>copy $(SolutionDir)msdia140.dll $(SolutionDir)$(PlatformTarget)\$(Configuration)
 copy $(SolutionDir)SymbolCheck.dll $(SolutionDir)$(PlatformTarget)\$(Configuration)
-copy $(SolutionDir)symchk.exe $(SolutionDir)$(PlatformTarget)\$(Configuration)</Command>
+copy $(SolutionDir)symchk.exe $(SolutionDir)$(PlatformTarget)\$(Configuration)
+copy $(SolutionDir)PDBDownloader.exe $(SolutionDir)$(PlatformTarget)\$(Configuration)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -132,6 +134,7 @@ copy $(SolutionDir)symchk.exe $(SolutionDir)$(PlatformTarget)\$(Configuration)</
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -143,15 +146,18 @@ copy $(SolutionDir)symchk.exe $(SolutionDir)$(PlatformTarget)\$(Configuration)</
     <PostBuildEvent>
       <Command>copy $(SolutionDir)msdia140.dll $(SolutionDir)$(PlatformTarget)\$(Configuration)
 copy $(SolutionDir)SymbolCheck.dll $(SolutionDir)$(PlatformTarget)\$(Configuration)
-copy $(SolutionDir)symchk.exe $(SolutionDir)$(PlatformTarget)\$(Configuration)</Command>
+copy $(SolutionDir)symchk.exe $(SolutionDir)$(PlatformTarget)\$(Configuration)
+copy $(SolutionDir)PDBDownloader.exe $(SolutionDir)$(PlatformTarget)\$(Configuration)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="common.cpp" />
     <ClCompile Include="hdd.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="pdbparse.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="common.h" />
     <ClInclude Include="hdd.h" />
     <ClInclude Include="pdbparse.h" />
   </ItemGroup>

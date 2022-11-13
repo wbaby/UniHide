@@ -36,6 +36,9 @@
     <ClCompile Include="hdd.cpp">
       <Filter>Source Files\spoofers</Filter>
     </ClCompile>
+    <ClCompile Include="common.cpp">
+      <Filter>Source Files\lib</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pdbparse.h">
@@ -43,6 +46,9 @@
     </ClInclude>
     <ClInclude Include="hdd.h">
       <Filter>Header Files\spoofers</Filter>
+    </ClInclude>
+    <ClInclude Include="common.h">
+      <Filter>Header Files\lib</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
