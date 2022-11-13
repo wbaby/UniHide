@@ -4,9 +4,15 @@ NTSTATUS EntryPoint(PDRIVER_OBJECT pDriverObject, PUNICODE_STRING pRegistryPath)
 {
     UNREFERENCED_PARAMETER(pRegistryPath);
     DbgMsg("Redirecting to Driver Entry..");
+
+    Collector::Init();
+    globals::Init();
+
+    DbgMsg("Current driver name: %ls", globals::CurrentDriverName);
+    
     UNICODE_STRING driver_name;
     NTSTATUS status;
-    RtlInitUnicodeString(&driver_name, L"\\Driver\\Loader");
+    RtlInitUnicodeString(&driver_name, globals::CurrentDriverName);
     status = IoCreateDriver(&driver_name, &EntryInit);
 
     return status;

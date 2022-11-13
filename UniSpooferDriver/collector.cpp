@@ -4,6 +4,8 @@ vector<void*>* Collector::myGarbage = nullptr;
 
 void Collector::Init()
 {
+	if (myGarbage)
+		return;
 	myGarbage = vector<void*>::create();
 	DbgMsg("Initialized collector\n");
 }

@@ -104,7 +104,7 @@ void SpoofHDD()
 			PHDD_EXTENSION pDeviceHDD = (PHDD_EXTENSION)pDevice->DeviceExtension;
 
 			CHAR HDDSPOOFED_TMP[32] = { 0x0 };
-			RandString((CHAR*)&HDDSPOOFED_TMP, SERIAL_MAX_LENGTH - 1);
+			RandString<CHAR>((CHAR*)&HDDSPOOFED_TMP, SERIAL_MAX_LENGTH - 1);
 
 			//Can be optimised...
 			for (int i = 1; i <= SERIAL_MAX_LENGTH + 1; i = i + 2)

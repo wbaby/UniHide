@@ -151,23 +151,6 @@ UNICODE_STRING GetModuleNameFromPath(PUNICODE_STRING path)
 	return s;
 }
 
-void RandString(char* out, size_t len) {
-
-	static char charset[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-
-	ULONG seed = KeQueryTimeIncrement();
-
-	if (out)
-	{
-		for (int n = 0; n <= len; n++)
-		{
-			int key = RtlRandomEx(&seed) % (int)(sizeof(charset) - 1);
-			out[n] = charset[key];
-		}
-		out[len] = '\x0';
-	}
-}
-
 PVOID GetKernelAddress(PCHAR name)
 {
 	NTSTATUS status = STATUS_SUCCESS;

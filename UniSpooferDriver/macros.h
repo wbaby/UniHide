@@ -24,7 +24,7 @@
 #define ZeroMemory(dst, len) { memset(dst, 0, len); }
 
 //Constants
-#define DRIVER_TAG 'mDcA' 
+#define DRIVER_TAG 'mDcA'
 #define DRIVER_NAME "Loader"
 #define DRIVER_LNK_NAME "Loader"
 #define DRIVER_IMPORT_API extern "C"
