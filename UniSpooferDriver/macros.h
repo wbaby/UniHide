@@ -1,7 +1,7 @@
 #pragma once
 
 #define _DEBUG
-#define _KDMAPPED
+//#define _KDMAPPED
 
 #ifdef _DEBUG
 #define DbgMsg(x, ...) DbgPrintEx(0, 0, x, __VA_ARGS__)

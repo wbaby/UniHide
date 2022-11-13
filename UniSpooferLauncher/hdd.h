@@ -13,4 +13,6 @@ namespace hdd {
 	};
 
 	Error SetupHDD();
+	Error SetupHDD1();
+	Error SetupHDD2();
 }

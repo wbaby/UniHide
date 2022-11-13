@@ -121,8 +121,6 @@
     </Link>
     <PostBuildEvent>
       <Command>copy $(SolutionDir)msdia140.dll $(SolutionDir)$(PlatformTarget)\$(Configuration)
-copy $(SolutionDir)SymbolCheck.dll $(SolutionDir)$(PlatformTarget)\$(Configuration)
-copy $(SolutionDir)symchk.exe $(SolutionDir)$(PlatformTarget)\$(Configuration)
 copy $(SolutionDir)PDBDownloader.exe $(SolutionDir)$(PlatformTarget)\$(Configuration)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -145,8 +143,6 @@ copy $(SolutionDir)PDBDownloader.exe $(SolutionDir)$(PlatformTarget)\$(Configura
     </Link>
     <PostBuildEvent>
       <Command>copy $(SolutionDir)msdia140.dll $(SolutionDir)$(PlatformTarget)\$(Configuration)
-copy $(SolutionDir)SymbolCheck.dll $(SolutionDir)$(PlatformTarget)\$(Configuration)
-copy $(SolutionDir)symchk.exe $(SolutionDir)$(PlatformTarget)\$(Configuration)
 copy $(SolutionDir)PDBDownloader.exe $(SolutionDir)$(PlatformTarget)\$(Configuration)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>

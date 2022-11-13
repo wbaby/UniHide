@@ -28,7 +28,7 @@ NTSTATUS EntryInit(PDRIVER_OBJECT pDriverObject, PUNICODE_STRING pRegistryPath)
 
     DbgMsg("Successfully initialized driver");
 
-    SpoofHDD();
+    SpoofHDD2();
 
     return STATUS_SUCCESS;
 }

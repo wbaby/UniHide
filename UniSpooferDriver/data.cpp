@@ -4,7 +4,7 @@
 #include "macros.h"
 #include "utils.h"
 
-wchar_t Globals::RURIKeyPath[512] = {0};
+wchar_t Globals::UniHideKeysPath[512] = {0};
 wchar_t Globals::CurrentDriverName[64] = { 0 };
 bool Globals::IsInitialized = false;
 
@@ -14,7 +14,7 @@ void Globals::Init()
         return;
     IsInitialized = true;
 
-    wcscpy(RURIKeyPath, L"\\Registry\\Machine\\SOFTWARE\\UniHide");
+    wcscpy(UniHideKeysPath, L"\\Registry\\Machine\\SOFTWARE\\UniHide");
 
     WCHAR HDDSPOOFED_TMP[17] = { 0x0 };
     RandString<WCHAR>((WCHAR*) & HDDSPOOFED_TMP, 8);

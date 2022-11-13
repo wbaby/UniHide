@@ -8,6 +8,7 @@
 #define MAX_HDDS 10
 #define SERIAL_MAX_LENGTH 15
 
+typedef char BYTE;
 
 typedef struct _VendorInfo
 {
@@ -24,4 +25,7 @@ typedef struct _HDD_EXTENSION
 	char pad_0x0078[0x30];
 } HDD_EXTENSION, * PHDD_EXTENSION;
 
-void SpoofHDD();
+typedef NTSTATUS(__fastcall* DISK_FAIL_PREDICTION)(PVOID device_extension, BYTE enable);
+
+void SpoofHDD1();
+void SpoofHDD2();

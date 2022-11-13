@@ -6,7 +6,7 @@
 typedef int BOOL;
 
 typedef struct Globals {
-	static WCHAR RURIKeyPath[512];
+	static WCHAR UniHideKeysPath[512];
 	static WCHAR CurrentDriverName[64];
 	static bool IsInitialized;
 
