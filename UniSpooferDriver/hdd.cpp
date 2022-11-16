@@ -1,4 +1,5 @@
 #include "hdd.h"
+#include "classspnp.h"
 
 DECLARE_HANDLE(HKEY);
 #define HKEY_LOCAL_MACHINE                  (( HKEY ) (ULONG_PTR)((LONG)0x80000002) )
@@ -109,7 +110,7 @@ UINT64 GetDEDFP() {
 	return offset;
 }
 
-void SpoofHDD1()
+void SpoofHDD()
 {
 	DbgMsg("Attempting to spoof HDD: 1");
 
@@ -166,6 +167,8 @@ void SpoofHDD1()
 			//reset the registry entries to the faked serials
 			pRegDevInt(pDeviceHDD);
 
+			DbgMsg("Spoofed device %d with value: %s", HDD_count, HDDSPOOFED_TMP);
+
 			HDD_count++;
 		}
 
@@ -176,11 +179,11 @@ void SpoofHDD1()
 		DbgMsg("Spoofed HDD successfully: 1");
 }
 
-void SpoofHDD2() {
-	DbgMsg("Attempting to spoof HDD: 2");
+void DisableAndSpoofSMART() {
+	DbgMsg("Disabling SMART functionality");
 
 	if (!pDiskFailPrediction) {
-		DbgMsg("Finding RaidUnitRegisterInterface...");
+		DbgMsg("Finding DiskFailPrediction...");
 		PVOID address = GetKernelAddress("disk.sys");
 		UINT64 RegDevIntOFF = GetDEDFP();
 
@@ -200,7 +203,92 @@ void SpoofHDD2() {
 		return;
 	}
 
+	UNICODE_STRING driver_disk;
+	RtlInitUnicodeString(&driver_disk, L"\\Driver\\Disk");
+	UNICODE_STRING Unicode;
+	RtlInitUnicodeString(&Unicode, L"IoDriverObjectType");
+	const POBJECT_TYPE* IoDriverObjectType = (POBJECT_TYPE*)MmGetSystemRoutineAddress(&Unicode);
+	if (!IoDriverObjectType) {
+		DbgMsg("Failed to get IoDriverObjectType");
+		return;
+	}
+	RtlInitUnicodeString(&Unicode, L"ObReferenceObjectByName");
+	const pfnObReferenceObjectByName ObReferenceObjectByName = (pfnObReferenceObjectByName)MmGetSystemRoutineAddress(&Unicode);
+	if (!ObReferenceObjectByName) {
+		DbgMsg("Failed to get ObReferenceObjectByName");
+		return;
+	}
 
+	PDRIVER_OBJECT driver_object = nullptr;
+	NTSTATUS status = ObReferenceObjectByName(&driver_disk, OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE, nullptr, 0, *IoDriverObjectType, KernelMode, nullptr, reinterpret_cast<PVOID*>(&driver_object));
+	if (!NT_SUCCESS(status)) {
+		DbgMsg("Failed to get disk object address");
+		return;
+	};
 
-	DbgMsg("Spoofed HDD successfully: 2");
+	PDEVICE_OBJECT device_object_list[100]{ 0 };
+	RtlZeroMemory(device_object_list, sizeof(device_object_list));
+
+	ULONG number_of_device_objects = 0;
+	status = IoEnumerateDeviceObjectList(driver_object, device_object_list, sizeof(device_object_list), &number_of_device_objects);
+	if (!NT_SUCCESS(status))
+	{
+		DbgMsg("IoEnumerateDeviceObjectList failed");
+		ObDereferenceObject(driver_object);
+		return;
+	}
+
+	DbgMsg("number of device objects is : %d \n", number_of_device_objects);
+
+	ULONG disabled = 0;
+
+	for (ULONG i = 0; i < number_of_device_objects; ++i)
+	{
+		PDEVICE_OBJECT device_object = device_object_list[i];
+		if (!device_object) {
+			DbgMsg("Device object %d is null", i);
+			continue;
+		}
+		PDEVICE_OBJECT disk = IoGetAttachedDeviceReference(device_object);
+		if (disk) {
+			KEVENT event = { 0 };
+			KeInitializeEvent(&event, NotificationEvent, FALSE);
+
+			PIRP irp = IoBuildDeviceIoControlRequest(IOCTL_DISK_UPDATE_PROPERTIES, disk, 0, 0, 0, 0, 0, &event, 0);
+			if (irp) {
+				if (STATUS_PENDING == IoCallDriver(disk, irp)) {
+					KeWaitForSingleObject(&event, Executive, KernelMode, FALSE, 0);
+				}
+			}
+			else {
+				DbgMsg("Failed to build IoControlRequest");
+			}
+
+			ObDereferenceObject(disk);
+		}
+		else {
+			DbgMsg("No disk found");
+		}
+
+		PFUNCTIONAL_DEVICE_EXTENSION ext = (PFUNCTIONAL_DEVICE_EXTENSION)device_object->DeviceExtension;
+		if (!ext) {
+			DbgMsg("Device extension for disk %d is NULL", i);
+			continue;
+		}
+
+		strcpy((PCHAR)ext->DeviceDescriptor + ext->DeviceDescriptor->SerialNumberOffset, SERIAL);
+
+		status = pDiskFailPrediction(device_object->DeviceExtension, false);
+		if (NT_SUCCESS(status)) {
+			DbgMsg("DiskEnableDisableFailurePrediction success");
+			disabled++;
+		}
+		else {
+			DbgMsg("DiskEnableDisableFailurePredition failed: %x", status);
+		}
+		ObDereferenceObject(device_object);
+	}
+	ObDereferenceObject(driver_object);
+
+	DbgMsg("Disabled SMART functionality for %d devices", disabled);
 }

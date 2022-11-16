@@ -140,6 +140,7 @@
     <FilesToPackage Include="$(TargetPath)" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="classspnp.h" />
     <ClInclude Include="collector.h" />
     <ClInclude Include="cpp.h" />
     <ClInclude Include="data.h" />

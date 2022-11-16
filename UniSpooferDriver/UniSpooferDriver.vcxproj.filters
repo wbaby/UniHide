@@ -75,6 +75,9 @@
     <ClInclude Include="hdd.h">
       <Filter>Header Files\hdd</Filter>
     </ClInclude>
+    <ClInclude Include="classspnp.h">
+      <Filter>Header Files\libs</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
