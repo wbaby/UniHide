@@ -3,7 +3,7 @@
 #include "collector.h"
 #include "data.h"
 #include "macros.h"
-
+#include "VTx.h"
 #include "hdd.h"
 
 #include <wdm.h>

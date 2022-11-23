@@ -35,6 +35,12 @@
     <Filter Include="Header Files\hdd">
       <UniqueIdentifier>{67f4f74d-5ead-4781-ace0-d17ceff2b83b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\hyperv">
+      <UniqueIdentifier>{862c9e67-bf41-44b5-a1b2-d97b16c6e249}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\hyperv">
+      <UniqueIdentifier>{973bc01c-5a4d-4919-92fd-da40ed3d7c5a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Inf Include="UniSpooferDriver.inf">
@@ -78,6 +84,9 @@
     <ClInclude Include="classspnp.h">
       <Filter>Header Files\libs</Filter>
     </ClInclude>
+    <ClInclude Include="VTx.h">
+      <Filter>Header Files\hyperv</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -104,5 +113,13 @@
     <ClCompile Include="hdd.cpp">
       <Filter>Source Files\hdd</Filter>
     </ClCompile>
+    <ClCompile Include="VTx.cpp">
+      <Filter>Source Files\hyperv</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <MASM Include="VTx-helper.asm">
+      <Filter>Source Files\hyperv</Filter>
+    </MASM>
   </ItemGroup>
 </Project>

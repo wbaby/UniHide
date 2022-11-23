@@ -1,5 +1,13 @@
 #include "main.h"
 
+void HelloWorld() {
+    DbgMsg("Hello from driver land!");
+}
+
+void HelloWorldHook() {
+    DbgMsg("Hello from hook!");
+}
+
 NTSTATUS EntryPoint(PDRIVER_OBJECT pDriverObject, PUNICODE_STRING pRegistryPath)
 {
     UNREFERENCED_PARAMETER(pRegistryPath);
@@ -25,11 +33,7 @@ NTSTATUS EntryInit(PDRIVER_OBJECT pDriverObject, PUNICODE_STRING pRegistryPath)
 
     Collector::Init();
     globals::Init();
-
-    DbgMsg("Successfully initialized driver");
-
-    //SpoofHDD();
-    DisableAndSpoofSMART();
+    VTx::Init();
 
     return STATUS_SUCCESS;
 }

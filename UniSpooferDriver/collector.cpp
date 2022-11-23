@@ -7,7 +7,7 @@ void Collector::Init()
 	if (myGarbage)
 		return;
 	myGarbage = vector<void*>::create();
-	DbgMsg("Initialized collector\n");
+	DbgMsg("Initialized collector");
 }
 
 void Collector::Add(void* p)

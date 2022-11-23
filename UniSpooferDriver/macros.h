@@ -5,9 +5,12 @@
 
 #ifdef _DEBUG
 #define DbgMsg(x, ...) DbgPrintEx(0, 0, x, __VA_ARGS__)
+#define DbgMsgLevels(flag, x, ...) DbgPrintEx(0, 0, flag##x, __VA_ARGS__)
+#define DEBUG_VMX "[VMX]"
 #else 
 #define DbgMsg(x, ...)
 #pragma warning (disable:4390)
+#define DEBUG_VMX
 #endif
 
 #ifndef _KDMAPPED

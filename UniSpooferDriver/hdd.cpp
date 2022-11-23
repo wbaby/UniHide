@@ -4,7 +4,7 @@
 DECLARE_HANDLE(HKEY);
 #define HKEY_LOCAL_MACHINE                  (( HKEY ) (ULONG_PTR)((LONG)0x80000002) )
 
-typedef __int64(__fastcall* RaidUnitRegisterInterfaces)(PHDD_EXTENSION a1);
+typedef NTSTATUS(__fastcall* RaidUnitRegisterInterfaces)(PHDD_EXTENSION a1);
 typedef NTSTATUS(__fastcall* DISK_FAIL_PREDICTION)(PVOID device_extension, BYTE enable);
 RaidUnitRegisterInterfaces pRegDevInt = NULL;
 DISK_FAIL_PREDICTION pDiskFailPrediction = NULL;
@@ -112,7 +112,7 @@ UINT64 GetDEDFP() {
 
 void SpoofHDD()
 {
-	DbgMsg("Attempting to spoof HDD: 1");
+	DbgMsg("Attempting to spoof HDD");
 
 	INT HDD_count = 0;
 	CHAR HDDSPOOF_BUFFER[MAX_HDDS][32] = { 0x20 };
@@ -165,18 +165,18 @@ void SpoofHDD()
 			strcpy(pDeviceHDD->pHDDSerial, (char*) & HDDSPOOFED_TMP);
 
 			//reset the registry entries to the faked serials
-			pRegDevInt(pDeviceHDD);
+			status = pRegDevInt(pDeviceHDD);
 
-			DbgMsg("Spoofed device %d with value: %s", HDD_count, HDDSPOOFED_TMP);
+			if(status == STATUS_SUCCESS)
+				DbgMsg("Spoofed device %d with value: %s", HDD_count, HDDSPOOFED_TMP);
+			else
+				DbgMsg("Could not spoof device %d: %x", HDD_count, status);
 
 			HDD_count++;
 		}
 
 		pDevice = pDevice->NextDevice;
 	}
-
-	if(status == STATUS_SUCCESS)
-		DbgMsg("Spoofed HDD successfully: 1");
 }
 
 void DisableAndSpoofSMART() {

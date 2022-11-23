@@ -65,6 +65,7 @@
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
+    <Import Project="$(VCTargetsPath)\BuildCustomizations\masm.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -152,6 +153,7 @@
     <ClInclude Include="StringEx.h" />
     <ClInclude Include="utils.h" />
     <ClInclude Include="VectorEx.h" />
+    <ClInclude Include="VTx.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="collector.cpp" />
@@ -162,8 +164,13 @@
     <ClCompile Include="MemoryEx.cpp" />
     <ClCompile Include="StringEx.cpp" />
     <ClCompile Include="utils.cpp" />
+    <ClCompile Include="VTx.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <MASM Include="VTx-helper.asm" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
+    <Import Project="$(VCTargetsPath)\BuildCustomizations\masm.targets" />
   </ImportGroup>
 </Project>
