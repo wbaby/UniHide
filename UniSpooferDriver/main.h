@@ -4,6 +4,7 @@
 #include "data.h"
 #include "macros.h"
 #include "VTx.h"
+#include "EPT.h"
 #include "hdd.h"
 
 #include <wdm.h>

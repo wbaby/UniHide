@@ -6,9 +6,17 @@
 
 typedef struct _VM_STATE
 {
-	UINT64 VmxonRegion; // VMXON region
-	UINT64 VmcsRegion;  // VMCS region
-} VM_STATE, * PVM_STATE;
+	UINT64 pVmxonRegion;		// VMXON region
+	UINT64 pVmcsRegion;			// VMCS region
+	UINT64 pEpt;				// Extended-Page-Table Pointer
+	UINT64 pVmmStack;			// Stack for VMM in VM-Exit State
+	UINT64 pGuestMem;			// Guest emulation of physical
+	UINT64 pGuestStack;			// Guest stack space
+	UINT64 vaMsrBitmap;			// MSR Bitmap Virtual Address
+	UINT64 paMsrBitmapPhysical;	// MSR Bitmap Physical Address
+	UINT64 ulGuestRsp;			// Guest saved rsp
+	UINT64 ulGuestRbp;			// Guest saved rbp
+} VM_STATE, *PVM_STATE;
 
 //TYPE DEF DEFINITIONS
 typedef char BOOL;

@@ -191,6 +191,10 @@ private:
 	T& BracketOverload(int i) {
 		if (i > length)
 			return lastNode->obj;
+		if (i < 0)
+			i = length - i;
+		if (i < 0)
+			return firstNode->obj;
 
 		node<T>* curNode;
 		if (i < length / 2) {

@@ -4,7 +4,6 @@
 #include <intrin.h>
 
 #include "macros.h"
-#include "VTx.h"
 #include "data.h"
 
 DRIVER_IMPORT_API NTSTATUS NTAPI MmCopyVirtualMemory(
@@ -22,6 +21,4 @@ namespace Memory {
 	NTSTATUS KernelWriteVirtualMemory(PEPROCESS Process, PVOID SourceAddress, PVOID TargetAddress, SIZE_T Size);
 	PVOID VirtToPhy(PVOID Va);
 	PVOID PhyToVirt(PVOID Pa);
-	BOOLEAN AllocVmxonRegion(PVM_STATE pState);
-	BOOLEAN AllocVmcsRegion(PVM_STATE pState);
 }

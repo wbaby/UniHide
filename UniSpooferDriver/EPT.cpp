@@ -119,7 +119,7 @@ UINT64 EPT::InitEptp()
     EPTPointer->Fields.Reserved1 = 0;
     EPTPointer->Fields.Reserved2 = 0;
 
-    DbgMsg("[VMX] Extended Page Table Pointer located at %p", EPTPointer);
+    DbgMsg("[EPT] Extended Page Table Pointer located at %p", EPTPointer);
     return (UINT64)EPTPointer;
 
 _cleanup:
