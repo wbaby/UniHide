@@ -52,7 +52,6 @@ NTSTATUS EntryInit(PDRIVER_OBJECT pDriverObject, PUNICODE_STRING pRegistryPath)
 
         memset((PVOID)globals::vGuestStates[i]->pGuestMem, 0xF4, 100 * PAGE_SIZE);
 
-        DbgMsg("Set all memory to HLT");
         //
         // Launching VM for Test (in the 0th virtual processor)
         //

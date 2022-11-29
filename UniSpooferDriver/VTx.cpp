@@ -115,8 +115,6 @@ void VTx::Vmptrst()
 
 bool VTx::VmClear(PVM_STATE pState)
 {
-    DbgMsg("[VMX] Calling VMCLEAR on region: %p", pState->pVmcsRegion);
-
     // Clear the state of the VMCS to inactive
     int status = __vmx_vmclear(&pState->pVmcsRegion);
 
@@ -133,8 +131,6 @@ bool VTx::VmClear(PVM_STATE pState)
 
 bool VTx::VmPtrld(PVM_STATE pState)
 {
-    DbgMsg("[VMX] Loading VMCS from region: %p", pState->pVmcsRegion);
-
     int status = __vmx_vmptrld(&pState->pVmcsRegion);
     if (status)
     {
@@ -215,7 +211,7 @@ void VTx::VmLaunch(ULONG ulProcessor, PEPTP pEpt)
     // if VMLAUNCH succeeds will never be here!
     //
     ULONG64 ErrorCode = 0;
-    __vmx_vmread(VM_INSTRUCTION_ERROR_MASK, &ErrorCode);
+    __vmx_vmread(VM_INSTRUCTION_ERROR, &ErrorCode);
     __vmx_off();
     DbgMsg("[VMX] VMLAUNCH Error: 0x%llx", ErrorCode);
 
@@ -508,6 +504,11 @@ bool VTx::AllocVmxonRegion(PVM_STATE pState)
     *(UINT64*)AlignedVirtualBuffer = basic.Fields.RevisionIdentifier;
 
     pState->pVmxonRegion = AlignedPhysicalBuffer;
+
+    bool bStatus = VmxOn(&AlignedPhysicalBuffer);
+    if (!bStatus) {
+        return FALSE;
+    }
 
     return TRUE;
 }
