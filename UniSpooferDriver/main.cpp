@@ -35,7 +35,7 @@ NTSTATUS EntryInit(PDRIVER_OBJECT pDriverObject, PUNICODE_STRING pRegistryPath)
     Collector::Init();
     globals::Init();
 
-    if (!VTx::Init(ulProcessors)) {
+    if (!VTx::Init()) {
         DbgMsg("There was an error during VTx Initialization...");
         goto _end;
     }

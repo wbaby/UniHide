@@ -2,7 +2,7 @@
 
 #include <intrin.h>
 
-bool VTx::Init(ULONG ulProcessorCount)
+bool VTx::Init()
 {
     DbgMsg("[VMX] Initializing VMX...");
 
@@ -12,8 +12,7 @@ bool VTx::Init(ULONG ulProcessorCount)
         return FALSE;
     }
 
-    ULONG ulMaxProcessors = KeQueryActiveProcessorCount(0);
-    globals::ulProcessorCount = ulMaxProcessors < ulProcessorCount ? ulMaxProcessors : ulProcessorCount;
+    globals::ulProcessorCount = KeQueryActiveProcessorCount(0);
 
     KAFFINITY AffinityMask;
     for (size_t i = 0; i < globals::ulProcessorCount; i++)

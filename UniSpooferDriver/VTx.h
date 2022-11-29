@@ -402,7 +402,7 @@ typedef struct _GUEST_REGS
 
 namespace VTx
 {
-    bool Init(ULONG ulProcessorCount);
+    bool Init();
     bool IsIntelCPU();
     bool IsMsrLocked();
     extern "C" bool IsVmxSupported();

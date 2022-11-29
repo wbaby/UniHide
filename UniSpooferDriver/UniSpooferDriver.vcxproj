@@ -114,6 +114,7 @@
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <ControlFlowGuard>false</ControlFlowGuard>
       <SDLCheck>false</SDLCheck>
+      <DisableSpecificWarnings>4603;4627;4986;4987;4210;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <EntryPointSymbol>DriverEntryInit</EntryPointSymbol>
