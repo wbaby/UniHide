@@ -71,5 +71,5 @@ typedef union _EPT_PTE {
 }EPT_PTE, * PEPT_PTE;
 
 namespace EPT {
-    UINT64 InitEptp();
+    UINT64 InitEptp(ULONG ulProcessor);
 }

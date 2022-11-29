@@ -1,14 +1,15 @@
 #include "EPT.h"
 
-UINT64 EPT::InitEptp()
+UINT64 EPT::InitEptp(ULONG ulProcessor)
 {
+    DbgMsg("[EPT] Initializing EPT pointer...");
+
 	PAGED_CODE();
     PEPTP EPTPointer = (PEPTP)kMalloc(PAGE_SIZE);
     PEPT_PML4E EptPml4 = nullptr;
     PEPT_PDE EptPdpt = nullptr;
     PEPT_PDE EptPd = nullptr;
     PEPT_PTE EptPt = nullptr;
-    UINT64 ulStatus = NULL;
 
     if (!EPTPointer)
     {
@@ -49,8 +50,9 @@ UINT64 EPT::InitEptp()
     // Setup PT by allocating two pages Continuously
     // We allocate two pages because we need 1 page for our RIP to start and 1 page for RSP 1 + 1 = 2
     //
-    const int PagesToAllocate = 10;
+    const int PagesToAllocate = 100;
     UINT64 GuestMemory = (UINT64)kMalloc(PagesToAllocate * PAGE_SIZE);
+    globals::vGuestStates[ulProcessor]->pGuestMem = GuestMemory;
     RtlZeroMemory((PVOID)GuestMemory, PagesToAllocate * PAGE_SIZE);
 
     for (size_t i = 0; i < PagesToAllocate; i++)
@@ -119,7 +121,7 @@ UINT64 EPT::InitEptp()
     EPTPointer->Fields.Reserved1 = 0;
     EPTPointer->Fields.Reserved2 = 0;
 
-    DbgMsg("[EPT] Extended Page Table Pointer located at %p", EPTPointer);
+    DbgMsg("[EPT] Extended Page Table located at %p", EPTPointer);
     return (UINT64)EPTPointer;
 
 _cleanup:
@@ -132,5 +134,5 @@ _cleanup:
     if(!EPTPointer)
         kDelete(EPTPointer);
 
-    return ulStatus;
+    return 0;
 }

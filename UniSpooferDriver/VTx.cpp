@@ -2,15 +2,18 @@
 
 #include <intrin.h>
 
-bool VTx::Init()
+bool VTx::Init(ULONG ulProcessorCount)
 {
+    DbgMsg("[VMX] Initializing VMX...");
+
     if (!IsVmxSupported())
     {
-        DbgMsgLevels(DEBUG_VMX, "VMX is not supported in this machine !");
+        DbgMsg("[VMX] VMX is not supported in this machine !");
         return FALSE;
     }
 
-    globals::ulProcessorCount = KeQueryActiveProcessorCount(0);
+    ULONG ulMaxProcessors = KeQueryActiveProcessorCount(0);
+    globals::ulProcessorCount = ulMaxProcessors < ulProcessorCount ? ulMaxProcessors : ulProcessorCount;
 
     KAFFINITY AffinityMask;
     for (size_t i = 0; i < globals::ulProcessorCount; i++)
@@ -24,7 +27,7 @@ bool VTx::Init()
         //
         EnableVmx();
 
-        DbgMsgLevels(DEBUG_VMX, "VMX Operation Enabled for logical processor: %llx", i);
+        DbgMsg("[VMX] VMX Operation Enabled for logical processor: %llx", i);
 
         PVM_STATE pState = (PVM_STATE)kMalloc(sizeof(VM_STATE));
         globals::vGuestStates.Append(pState);
@@ -33,19 +36,12 @@ bool VTx::Init()
         AllocVmcsRegion(globals::vGuestStates[i]);
         
         if (!globals::vGuestStates[i]->pVmcsRegion || !globals::vGuestStates[i]->pVmxonRegion) {
-            DbgMsgLevels(DEBUG_VMX, "Failed to allocate region for logical processor: %llx! Aborting initialization...", i);
-            return FALSE;
-        }
-
-        UINT64 pEtp = EPT::InitEptp();
-        
-        if (!pEtp) {
-            DbgMsgLevels(DEBUG_VMX, "Failed to allocate region for EPT struct! Aborting initialization...");
+            DbgMsg("[VMX] Failed to allocate region for logical processor: %llx! Aborting initialization...", i);
             return FALSE;
         }
     }
 
-    DbgMsgLevels(DEBUG_VMX, "Successfully initialized VMX");
+    DbgMsg("[VMX] Successfully initialized VMX");
 
     return TRUE;
 }
@@ -69,16 +65,18 @@ bool VTx::IsMsrLocked()
         return FALSE;
     }
 
-    DbgMsgLevels(DEBUG_VMX, "MSR is currently locked...");
+    DbgMsg("[VMX] MSR is currently locked...");
     return TRUE;
 }
 
 bool VTx::VmxOn(PVOID pRegion)
 {
+    DbgMsg("[VMX] VMXON called...");
+    
     int Status = __vmx_on((ULONGLONG*)pRegion);
     if (Status)
     {
-        DbgMsgLevels(DEBUG_VMX, "VMXON failed with status %x", Status);
+        DbgMsg("[VMX] VMXON failed with status %x", Status);
         return FALSE;
     }
     return TRUE;
@@ -86,7 +84,7 @@ bool VTx::VmxOn(PVOID pRegion)
 
 void VTx::VmxOff()
 {
-    DbgMsgLevels(DEBUG_VMX, "Terminating VMX...");
+    DbgMsg("[VMX] Terminating VMX...");
 
     KAFFINITY AffinityMask;
     size_t i = 0;
@@ -94,7 +92,7 @@ void VTx::VmxOff()
     {
         AffinityMask = 2 << i;
         KeSetSystemAffinityThread(AffinityMask);
-        DbgMsgLevels(DEBUG_VMX, "Calling VMXOFF for logical processor: %llx", i);
+        DbgMsg("[VMX] Calling VMXOFF for logical processor: %llx", i);
 
         __vmx_off();
 
@@ -102,28 +100,32 @@ void VTx::VmxOff()
         MmFreeContiguousMemory(Memory::PhyToVirt((PVOID)globals::vGuestStates[i]->pVmcsRegion));
     }
 
-    DbgMsgLevels(DEBUG_VMX, "VMX Operation turned off successfully for %llx logical processors", i);
+    DbgMsg("[VMX] VMX Operation turned off successfully for %llx logical processors", i);
 }
 
 void VTx::Vmptrst()
 {
+    DbgMsg("[VMX] VMPTRST called...");
+    
     PHYSICAL_ADDRESS vmcspa;
     vmcspa.QuadPart = 0;
     __vmx_vmptrst((unsigned __int64*)&vmcspa);
 
-    DbgMsgLevels(DEBUG_VMX, "VMPTRST %llx\n", vmcspa);
+    DbgMsg("[VMX] VMPTRST %llx\n", vmcspa);
 }
 
 bool VTx::VmClear(PVM_STATE pState)
 {
+    DbgMsg("[VMX] Calling VMCLEAR on region: %p", pState->pVmcsRegion);
+
     // Clear the state of the VMCS to inactive
     int status = __vmx_vmclear(&pState->pVmcsRegion);
 
-    DbgMsgLevels(DEBUG_VMX, "VMCS VMCLAEAR Status is : %d", status);
+    DbgMsg("[VMX] VMCS VMCLAEAR Status is : %d", status);
     if (status)
     {
         // Otherwise, terminate the VMX
-        DbgMsgLevels(DEBUG_VMX, "VMCS failed to clear with status %d", status);
+        DbgMsg("[VMX] VMCS failed to clear with status %d", status);
         __vmx_off();
         return FALSE;
     }
@@ -132,10 +134,12 @@ bool VTx::VmClear(PVM_STATE pState)
 
 bool VTx::VmPtrld(PVM_STATE pState)
 {
+    DbgMsg("[VMX] Loading VMCS from region: %p", pState->pVmcsRegion);
+
     int status = __vmx_vmptrld(&pState->pVmcsRegion);
     if (status)
     {
-        DbgMsgLevels(DEBUG_VMX, "VMCS failed with status %d", status);
+        DbgMsg("[VMX] VMCS failed with status %d", status);
         return FALSE;
     }
     return TRUE;
@@ -143,7 +147,7 @@ bool VTx::VmPtrld(PVM_STATE pState)
 
 void VTx::VmLaunch(ULONG ulProcessor, PEPTP pEpt)
 {
-    DbgMsgLevels(DEBUG_VMX, "Launching VM for processor: 0x%x", ulProcessor);
+    DbgMsg("[VMX] Launching VM for processor: 0x%x", ulProcessor);
 
     KAFFINITY kAffinity;
     kAffinity = 2 << ulProcessor;
@@ -159,20 +163,20 @@ void VTx::VmLaunch(ULONG ulProcessor, PEPTP pEpt)
 
     if (globals::vGuestStates[ulProcessor]->pVmmStack == NULL)
     {
-        DbgMsgLevels(DEBUG_VMX, "Error in allocating VMM Stack.");
+        DbgMsg("[VMX] Error in allocating VMM Stack.");
         return;
     }
     RtlZeroMemory((PVOID)globals::vGuestStates[ulProcessor]->pVmmStack, VMM_STACK_SIZE);
 
-    VMM_STACK_VA = (UINT64)kMalloc(VMM_STACK_SIZE);
-    globals::vGuestStates[ulProcessor]->pGuestStack = VMM_STACK_VA;
-
-    if (globals::vGuestStates[ulProcessor]->pGuestStack == NULL)
-    {
-        DbgMsgLevels(DEBUG_VMX, "Error in allocating Guest Stack.");
-        return;
-    }
-    RtlZeroMemory((PVOID)globals::vGuestStates[ulProcessor]->pGuestStack, VMM_STACK_SIZE);
+    //VMM_STACK_VA = (UINT64)kMalloc(VMM_STACK_SIZE);
+    //globals::vGuestStates[ulProcessor]->pGuestStack = VMM_STACK_VA;
+    //
+    //if (globals::vGuestStates[ulProcessor]->pGuestStack == NULL)
+    //{
+    //    DbgMsg("[VMX] Error in allocating Guest Stack.");
+    //    return;
+    //}
+    //RtlZeroMemory((PVOID)globals::vGuestStates[ulProcessor]->pGuestStack, VMM_STACK_SIZE);
 
     //
     // Allocate memory for MSRBitMap
@@ -180,7 +184,7 @@ void VTx::VmLaunch(ULONG ulProcessor, PEPTP pEpt)
     globals::vGuestStates[ulProcessor]->vaMsrBitmap = (UINT64)MmAllocateNonCachedMemory(PAGE_SIZE); // should be aligned
     if (globals::vGuestStates[ulProcessor]->vaMsrBitmap == NULL)
     {
-        DbgMsgLevels(DEBUG_VMX, "Error in allocating MSRBitMap.");
+        DbgMsg("[VMX] Error in allocating MSRBitMap.");
         return;
     }
     RtlZeroMemory((PVOID)globals::vGuestStates[ulProcessor]->vaMsrBitmap, PAGE_SIZE);
@@ -200,12 +204,11 @@ void VTx::VmLaunch(ULONG ulProcessor, PEPTP pEpt)
         goto _error;
     }
 
-    /*
-    DbgMsgLevels(DEBUG_VMX, "Setting up VMCS.");
-    SetupVmcs(&g_GuestState[ProcessorID], EPTP);
-    */
+    VmcsSetup(globals::vGuestStates[ulProcessor], pEpt);
 
     SaveVmxState(globals::vGuestStates[ulProcessor]->ulGuestRsp, globals::vGuestStates[ulProcessor]->ulGuestRbp);
+
+    DbgMsg("[VMX] Calling VMLAUNCH...");
 
     __vmx_vmlaunch();
 
@@ -215,15 +218,17 @@ void VTx::VmLaunch(ULONG ulProcessor, PEPTP pEpt)
     ULONG64 ErrorCode = 0;
     __vmx_vmread(VM_INSTRUCTION_ERROR_MASK, &ErrorCode);
     __vmx_off();
-    DbgMsgLevels(DEBUG_VMX, "VMLAUNCH Error: 0x%llx", ErrorCode);
+    DbgMsg("[VMX] VMLAUNCH Error: 0x%llx", ErrorCode);
 
 _error:
-    DbgMsgLevels(DEBUG_VMX, "There was an error starting the VM on logical processor: 0x%x", ulProcessor);
+    DbgMsg("[VMX] There was an error starting the VM on logical processor: 0x%x", ulProcessor);
     return;
 }
 
 void VTx::VmResume()
 {
+    DbgMsg("[VMX] Resuming execution...");
+
     __vmx_vmresume();
 
     // if VMRESUME succeeds will never be here !
@@ -241,6 +246,8 @@ void VTx::VmResume()
 
 bool VTx::VmcsSetup(PVM_STATE pState, PEPTP pEpt)
 {
+    DbgMsg("[VMX] Setupping VMCS...");
+
     __vmx_vmwrite(HOST_ES_SELECTOR, GetEs() & 0xF8);
     __vmx_vmwrite(HOST_CS_SELECTOR, GetCs() & 0xF8);
     __vmx_vmwrite(HOST_SS_SELECTOR, GetSs() & 0xF8);
@@ -331,12 +338,10 @@ bool VTx::VmcsSetup(PVM_STATE pState, PEPTP pEpt)
     __vmx_vmwrite(HOST_GDTR_BASE, GetGdtBase());
     __vmx_vmwrite(HOST_IDTR_BASE, GetIdtBase());
 
-    __vmx_vmwrite(GUEST_RSP, (ULONG64)globals::vGuestStates[0]->pGuestStack);
+    __vmx_vmwrite(GUEST_RSP, (ULONG64)globals::vGuestStates[0]->pGuestMem);
     __vmx_vmwrite(GUEST_RIP, (ULONG64)globals::vGuestStates[0]->pGuestMem);
     __vmx_vmwrite(HOST_RSP, ((ULONG64)pState->pVmmStack + VMM_STACK_SIZE - 1));
-    //__vmx_vmwrite(HOST_RIP, (ULONG64)AsmVmexitHandler);
-
-
+    __vmx_vmwrite(HOST_RIP, (ULONG64)VmExitWrapper);
 
     return true;
 }
@@ -349,8 +354,8 @@ void VTx::VmExitHandler(PGUEST_REGS pGuestRegs)
     size_t ExitQualification = 0;
     __vmx_vmread(EXIT_QUALIFICATION, &ExitQualification);
 
-    DbgPrint("VM_EXIT_REASION 0x%llx", ExitReason & 0xffff);
-    DbgPrint("EXIT_QUALIFICATION 0x%llx", ExitQualification);
+    DbgMsg("[VMX] VM_EXIT_REASION 0x%llx", ExitReason & 0xffff);
+    DbgMsg("[VMX] EXIT_QUALIFICATION 0x%llx", ExitQualification);
 
     switch (ExitReason)
     {
@@ -374,7 +379,7 @@ void VTx::VmExitHandler(PGUEST_REGS pGuestRegs)
     }
     case EXIT_REASON_HLT:
     {
-        DbgPrint("[*] Execution of HLT detected... \n");
+        DbgMsg("[VMX] Execution of HLT detected...");
 
         //
         // that's enough for now ;)
@@ -424,6 +429,8 @@ void VTx::VmExitHandler(PGUEST_REGS pGuestRegs)
 
 void VTx::VmResumeExec()
 {
+    DbgMsg("[VMX] Resuming execution...");
+
     __vmx_vmresume();
 
     // if VMRESUME succeeds will never be here !
@@ -442,6 +449,8 @@ void VTx::VmResumeExec()
 
 void VTx::MoveRip()
 {
+    DbgMsg("[VMX] Moving RIP from current instruction...");
+
     PVOID ResumeRIP = NULL;
     size_t CurrentRIP = NULL;
     size_t ExitInstructionLength = 0;
@@ -456,6 +465,8 @@ void VTx::MoveRip()
 
 bool VTx::AllocVmxonRegion(PVM_STATE pState)
 {
+    DbgMsg("[MEM] Allocating VMXON Region...");
+
     // at IRQL > DISPATCH_LEVEL memory allocation routines don't work
     if (KeGetCurrentIrql() > DISPATCH_LEVEL)
         KeRaiseIrqlToDpcLevel();
@@ -504,6 +515,8 @@ bool VTx::AllocVmxonRegion(PVM_STATE pState)
 
 bool VTx::AllocVmcsRegion(PVM_STATE pState)
 {
+    DbgMsg("[MEM] Allocating VMCS Region...");
+
     //
     // at IRQL > DISPATCH_LEVEL memory allocation routines don't work
     //
@@ -519,13 +532,11 @@ bool VTx::AllocVmcsRegion(PVM_STATE pState)
     PHYSICAL_ADDRESS Highest = { 0 };
     Highest.QuadPart = ~0;
 
-    // BYTE* Buffer = MmAllocateContiguousMemorySpecifyCache(VMXONSize + ALIGNMENT_PAGE_SIZE, Lowest, Highest, Lowest, MmNonCached);
-
     UINT64 PhysicalBuffer = (UINT64)Memory::VirtToPhy(Buffer);
     if (Buffer == NULL)
     {
         DbgMsg("Error : Couldn't Allocate Buffer for VMCS Region.");
-        return FALSE; // ntStatus = STATUS_INSUFFICIENT_RESOURCES;
+        return FALSE;
     }
     // zero-out memory
     RtlSecureZeroMemory(Buffer, VMCSSize + ALIGNMENT_PAGE_SIZE);
