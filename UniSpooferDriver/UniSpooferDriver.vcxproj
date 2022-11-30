@@ -151,6 +151,7 @@
     <ClInclude Include="data.h" />
     <ClInclude Include="dictionary.h" />
     <ClInclude Include="EPT.h" />
+    <ClInclude Include="events.h" />
     <ClInclude Include="hdd.h" />
     <ClInclude Include="macros.h" />
     <ClInclude Include="main.h" />
@@ -165,6 +166,7 @@
     <ClCompile Include="cpp.cpp" />
     <ClCompile Include="data.cpp" />
     <ClCompile Include="EPT.cpp" />
+    <ClCompile Include="events.cpp" />
     <ClCompile Include="hdd.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MemoryEx.cpp" />

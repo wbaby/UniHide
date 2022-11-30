@@ -216,7 +216,7 @@ void VTx::VmLaunch(ULONG ulProcessor, PEPTP pEpt)
 
     DbgMsg("[VMX] Calling VMLAUNCH...");
 
-    __vmx_vmlaunch();
+    //__vmx_vmlaunch();
 
     //
     // if VMLAUNCH succeeds will never be here!
@@ -225,10 +225,10 @@ void VTx::VmLaunch(ULONG ulProcessor, PEPTP pEpt)
     __vmx_vmread(VM_INSTRUCTION_ERROR, &ErrorCode);
     __vmx_off();
     DbgMsg("[VMX] VMLAUNCH Error: 0x%llx", ErrorCode);
+    return;
 
 _error:
     DbgMsg("[VMX] There was an error starting the VM on logical processor: 0x%x", ulProcessor);
-    return;
 }
 
 void VTx::VmResume()
@@ -309,10 +309,18 @@ bool VTx::VmcsSetup(PVM_STATE pState, PEPTP pEpt)
     __vmx_vmwrite(VM_EXIT_CONTROLS, SetMsrCtl(VM_EXIT_IA32E_MODE | VM_EXIT_ACK_INTR_ON_EXIT, MSR_IA32_VMX_EXIT_CTLS));
     __vmx_vmwrite(VM_ENTRY_CONTROLS, SetMsrCtl(VM_ENTRY_IA32E_MODE, MSR_IA32_VMX_ENTRY_CTLS));
 
+    __vmx_vmwrite(CR3_TARGET_COUNT, 0);
+    __vmx_vmwrite(CR3_TARGET_VALUE0, 0);
+    __vmx_vmwrite(CR3_TARGET_VALUE1, 0);
+    __vmx_vmwrite(CR3_TARGET_VALUE2, 0);
+    __vmx_vmwrite(CR3_TARGET_VALUE3, 0);
+
     //Setup cr for GUEST
     __vmx_vmwrite(GUEST_CR0, __readcr0());
     __vmx_vmwrite(GUEST_CR3, __readcr3());
     __vmx_vmwrite(GUEST_CR4, __readcr4());
+
+    __vmx_vmwrite(GUEST_DR7, 0x400);
 
     //Setup cr for HOST
     __vmx_vmwrite(HOST_CR0, __readcr0());
@@ -344,8 +352,8 @@ bool VTx::VmcsSetup(PVM_STATE pState, PEPTP pEpt)
     __vmx_vmwrite(HOST_GDTR_BASE, GetGdtBase());
     __vmx_vmwrite(HOST_IDTR_BASE, GetIdtBase());
 
-    __vmx_vmwrite(GUEST_RSP, (ULONG64)globals::vGuestStates[0]->pGuestMem);
-    __vmx_vmwrite(GUEST_RIP, (ULONG64)globals::vGuestStates[0]->pGuestMem);
+    __vmx_vmwrite(GUEST_RSP, (ULONG64)pState->pGuestMem);
+    __vmx_vmwrite(GUEST_RIP, (ULONG64)pState->pGuestMem);
     __vmx_vmwrite(HOST_RSP, ((ULONG64)pState->pVmmStack + VMM_STACK_SIZE - 1));
     __vmx_vmwrite(HOST_RIP, (ULONG64)VmExitWrapper);
 

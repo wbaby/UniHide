@@ -3,6 +3,9 @@
 #include <ntdef.h>
 
 #include "VectorEx.h"
+#include "events.h"
+
+#pragma warning (disable:4458)
 
 typedef struct _VM_STATE
 {
@@ -30,5 +33,8 @@ typedef struct Globals {
 	static vector<PVM_STATE> vGuestStates;
 	static ULONG ulProcessorMask;
 
-	static void Init();
+	//Logging
+	static EventLogger evLogger;
+
+	static void Init(PDRIVER_OBJECT pDevice);
 } globals;

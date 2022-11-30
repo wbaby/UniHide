@@ -12,7 +12,10 @@ bool Globals::IsInitialized = false;
 vector<PVM_STATE> Globals::vGuestStates;
 ULONG Globals::ulProcessorMask = 0;
 
-void Globals::Init()
+//Logging
+EventLogger Globals::evLogger;
+
+void Globals::Init(PDRIVER_OBJECT pDevice)
 {
     if (IsInitialized)
         return;
@@ -25,6 +28,8 @@ void Globals::Init()
 
     memcpy(globals::CurrentDriverName, L"\\Driver\\", 8 * 2);
     memcpy(globals::CurrentDriverName + 8, SPOOFER_TMP, sizeof(SPOOFER_TMP));
+
+    evLogger.pDevice = pDevice;
 
     DbgMsg("Successfully initialized global variables");
 }

@@ -74,6 +74,12 @@ VmxRestore PROC
 
 	mov rax, 1		;ret value
 
+	mov rbx, [rsp+28h+8h]
+	mov rbp, [rsp+28h+10h]
+	mov rdi, [rsp+28h+30h]
+	add rsp, 20h
+	pop r14
+
 	ret
 VmxRestore ENDP
 
