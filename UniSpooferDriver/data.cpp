@@ -10,7 +10,7 @@ bool Globals::IsInitialized = false;
 
 //Hypervisor related
 vector<PVM_STATE> Globals::vGuestStates;
-ULONG Globals::ulProcessorCount = 0;
+ULONG Globals::ulProcessorMask = 0;
 
 void Globals::Init()
 {

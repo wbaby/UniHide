@@ -28,7 +28,7 @@ typedef struct Globals {
 
 	//Hypervisor related
 	static vector<PVM_STATE> vGuestStates;
-	static ULONG ulProcessorCount;
+	static ULONG ulProcessorMask;
 
 	static void Init();
 } globals;

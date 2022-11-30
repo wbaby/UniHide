@@ -12,12 +12,13 @@ bool VTx::Init()
         return FALSE;
     }
 
-    globals::ulProcessorCount = KeQueryActiveProcessorCount(0);
+    ULONG ulMaxProc = KeQueryActiveProcessorCount(0);
 
     KAFFINITY AffinityMask;
-    for (size_t i = 0; i < globals::ulProcessorCount; i++)
+    for (size_t i = 0; i < ulMaxProc; i++)
     {
         AffinityMask = 2 << i;
+        globals::ulProcessorMask |= AffinityMask;
 
         KeSetSystemAffinityThread(AffinityMask);
 
@@ -25,6 +26,10 @@ bool VTx::Init()
         // Enabling VMX Operation
         //
         EnableVmx();
+        if (!IsVmxEnabled()) {
+            DbgMsg("[VMX] Error: could not enable VMX for processor: %llx", i);
+            goto _error;
+        }
 
         DbgMsg("[VMX] VMX Operation Enabled for logical processor: %llx", i);
 
@@ -36,8 +41,12 @@ bool VTx::Init()
         
         if (!globals::vGuestStates[i]->pVmcsRegion || !globals::vGuestStates[i]->pVmxonRegion) {
             DbgMsg("[VMX] Failed to allocate region for logical processor: %llx! Aborting initialization...", i);
-            return FALSE;
+            goto _error;
         }
+
+        continue;
+    _error:
+        globals::ulProcessorMask &= ~AffinityMask;
     }
 
     DbgMsg("[VMX] Successfully initialized VMX");
@@ -87,9 +96,11 @@ void VTx::VmxOff()
 
     KAFFINITY AffinityMask;
     size_t i = 0;
-    for (; i < globals::ulProcessorCount; i++)
+    for (; i < sizeof(ULONG); i++)
     {
         AffinityMask = 2 << i;
+        if (!(AffinityMask & globals::ulProcessorMask))
+            continue;
         KeSetSystemAffinityThread(AffinityMask);
         DbgMsg("[VMX] Calling VMXOFF for logical processor: %llx", i);
 

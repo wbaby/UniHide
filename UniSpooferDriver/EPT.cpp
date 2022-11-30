@@ -4,6 +4,11 @@ UINT64 EPT::InitEptp(ULONG ulProcessor)
 {
     DbgMsg("[EPT] Initializing EPT pointer...");
 
+    if (!((2 << ulProcessor) & globals::ulProcessorMask)) {
+        DbgMsg("[EPT] Error: specified processor 0x%x is not VMX enabled", ulProcessor);
+        return 0;
+    }
+
 	PAGED_CODE();
     PEPTP EPTPointer = (PEPTP)kMalloc(PAGE_SIZE);
     PEPT_PML4E EptPml4 = nullptr;
