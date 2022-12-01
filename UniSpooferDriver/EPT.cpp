@@ -9,7 +9,7 @@ UINT64 EPT::InitEptp(ULONG ulProcessor)
         return 0;
     }
 
-    PEPTP EPTPointer = (PEPTP)kMalloc(PAGE_SIZE);
+    PEPTP EPTPointer = (PEPTP)cpp::kMalloc(PAGE_SIZE);
     PEPT_PML4E EptPml4 = nullptr;
     PEPT_PDE EptPdpt = nullptr;
     PEPT_PDE EptPd = nullptr;
@@ -21,28 +21,28 @@ UINT64 EPT::InitEptp(ULONG ulProcessor)
     }
     RtlZeroMemory(EPTPointer, PAGE_SIZE);
 
-    EptPml4 = (PEPT_PML4E)kMalloc(PAGE_SIZE);
+    EptPml4 = (PEPT_PML4E)cpp::kMalloc(PAGE_SIZE);
     if (!EptPml4)
     {
         goto _cleanup;
     }
     RtlZeroMemory(EptPml4, PAGE_SIZE);
 
-    EptPdpt = (PEPT_PDE)kMalloc(PAGE_SIZE);
+    EptPdpt = (PEPT_PDE)cpp::kMalloc(PAGE_SIZE);
     if (!EptPdpt)
     {
         goto _cleanup;
     }
     RtlZeroMemory(EptPdpt, PAGE_SIZE);
 
-    EptPd = (PEPT_PDE)kMalloc(PAGE_SIZE);
+    EptPd = (PEPT_PDE)cpp::kMalloc(PAGE_SIZE);
     if (!EptPd)
     {
         goto _cleanup;
     }
     RtlZeroMemory(EptPdpt, PAGE_SIZE);
 
-    EptPt = (PEPT_PTE)kMalloc(PAGE_SIZE);
+    EptPt = (PEPT_PTE)cpp::kMalloc(PAGE_SIZE);
 
     if (!EptPt)
     {
@@ -55,7 +55,7 @@ UINT64 EPT::InitEptp(ULONG ulProcessor)
     // We allocate two pages because we need 1 page for our RIP to start and 1 page for RSP 1 + 1 = 2
     //
     const int PagesToAllocate = 100;
-    UINT64 GuestMemory = (UINT64)kMalloc(PagesToAllocate * PAGE_SIZE);
+    UINT64 GuestMemory = (UINT64)cpp::kMalloc(PagesToAllocate * PAGE_SIZE);
     globals::vGuestStates[ulProcessor]->pGuestMem = GuestMemory;
     RtlZeroMemory((PVOID)GuestMemory, PagesToAllocate * PAGE_SIZE);
 
@@ -130,13 +130,13 @@ UINT64 EPT::InitEptp(ULONG ulProcessor)
 
 _cleanup:
     if(!EptPd)
-        kDelete(EptPd);
+        cpp::kFree(EptPd);
     if(!EptPdpt)
-        kDelete(EptPdpt);
+        cpp::kFree(EptPdpt);
     if(!EptPml4)
-        kDelete(EptPml4);
+        cpp::kFree(EptPml4);
     if(!EPTPointer)
-        kDelete(EPTPointer);
+        cpp::kFree(EPTPointer);
 
     return 0;
 }

@@ -29,13 +29,13 @@ void Collector::Clean()
 	node<void*>* curNode = myGarbage->First();
 	for (int i = 0; i < myGarbage->Length(); i++) {
 		auto nextNode = curNode->fLink;
-		kDelete(curNode->obj, false);
-		kDelete(curNode, false);
+		cpp::kFree(curNode->obj, false);
+		cpp::kFree(curNode, false);
 		//DbgMsg("Deleted object at %d \n", (size_t)curNode->obj);
 		curNode = nextNode;
 	}
 	DbgMsg("Disposed of leaked memory");
 	//Dispose of nodes and vector object
-	kDelete((void*)myGarbage, false);
+	cpp::kFree((void*)myGarbage, false);
 	DbgMsg("Disposed of garbage collector");
 }

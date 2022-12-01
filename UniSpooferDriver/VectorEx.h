@@ -11,7 +11,7 @@ struct node
 
 	static node<T>* create(T* _obj = nullptr, node<T>* _bLink = nullptr, bool collect = true) {
 		if (_obj == nullptr) return nullptr;
-		node<T>* n = (node<T>*) kMalloc(sizeof(node<T>), NonPagedPool, collect);
+		node<T>* n = (node<T>*) cpp::kMalloc(sizeof(node<T>), NonPagedPool, collect);
 
 		if (n == nullptr) return nullptr;
 
@@ -57,7 +57,7 @@ public:
 		node<T>* curNode = firstNode;
 		for (int i = 0; i < length; i++) {
 			auto nextNode = curNode->fLink;
-			kDelete((void*)curNode, collect);
+			cpp::kFree((void*)curNode, collect);
 			DbgMsg("Deleted node %d \n", (size_t)curNode);
 			curNode = nextNode;
 		}
@@ -95,7 +95,7 @@ public:
 			curNode->bLink->fLink = curNode->fLink;
 			curNode->fLink->bLink = curNode->bLink;
 		}
-		kDelete(curNode, collect);
+		cpp::kFree(curNode, collect);
 		length--;
 	};
 	bool Append(T& obj) {

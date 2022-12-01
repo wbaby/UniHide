@@ -29,9 +29,9 @@ public:
 		if (LpCStr == nullptr)
 			return *this;
 
-		string* ret = (string*)kMalloc(sizeof(string), 'tSyM');
+		string* ret = (string*)cpp::kMalloc(sizeof(string), 'tSyM');
 		auto length = len + (int)strlen(LpCStr);
-		auto buffer = (char*)kMalloc((size_t)length + 1);
+		auto buffer = (char*)cpp::kMalloc((size_t)length + 1);
 		if (buffer == nullptr) return *this;
 		ZeroMemory((void*)buffer, (size_t)length + 1);
 		memcpy((void*)buffer, pBuffer, len);
@@ -45,7 +45,7 @@ public:
 		if (&obj == this)
 			return;
 		Dispose();
-		pBuffer = (char*)kMalloc((size_t)obj.len + 1);
+		pBuffer = (char*)cpp::kMalloc((size_t)obj.len + 1);
 		ZeroMemory((void*)pBuffer, (size_t)obj.len + 1);
 		memcpy((void*)pBuffer, obj.pBuffer, obj.len);
 		len = obj.len;

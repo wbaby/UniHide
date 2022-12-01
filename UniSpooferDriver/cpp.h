@@ -10,13 +10,18 @@
 
 #include "macros.h"
 
+namespace cpp {
+    //allocate new takes a pool type and returns a ptr to that mem, without calling the constructor of the obj tho
+    void* kMalloc(size_t size, POOL_TYPE pool_type = NonPagedPool, bool collect = true);
+    void* kMalloc(size_t size, int sig, bool collect = true);
 
-//allocate new takes a pool type and returns a ptr to that mem, without calling the constructor of the obj tho
-void* kMalloc(size_t size, POOL_TYPE pool_type = NonPagedPool, bool collect = true);
-void* kMalloc(size_t size, int sig, bool collect = true);
-//placement new takes an already allocated memory pool and calls the constructor of the obj
+    void* kMallocContinuous(size_t size, bool collect = true);
+    //placement new takes an already allocated memory pool and calls the constructor of the obj
+    void kFree(void* pObj, bool collect = true);
+    void kFreeContinuous(void* pObj, bool collect = true);
+}
+
 void* operator new(size_t /* ignored */, void* where);
-void kDelete(void* pObj, bool collect = true);
 
 template <typename T>
 constexpr bool is_lvalue(T&) {

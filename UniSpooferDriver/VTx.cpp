@@ -33,7 +33,7 @@ bool VTx::Init()
 
         DbgMsg("[VMX] VMX Operation Enabled for logical processor: %llx", i);
 
-        PVM_STATE pState = (PVM_STATE)kMalloc(sizeof(VM_STATE));
+        PVM_STATE pState = (PVM_STATE)cpp::kMalloc(sizeof(VM_STATE));
         globals::vGuestStates.Append(pState);
 
         AllocVmxonRegion(pState);
@@ -107,8 +107,8 @@ void VTx::VmxOff()
         __vmx_off();
         globals::vGuestStates[i]->bVmxOn = false;
 
-        MmFreeContiguousMemory(Memory::PhyToVirt((PVOID)globals::vGuestStates[i]->pVmxonRegion));
-        MmFreeContiguousMemory(Memory::PhyToVirt((PVOID)globals::vGuestStates[i]->pVmcsRegion));
+        cpp::kFreeContinuous(Memory::PhyToVirt((PVOID)globals::vGuestStates[i]->pVmxonRegion));
+        cpp::kFreeContinuous(Memory::PhyToVirt((PVOID)globals::vGuestStates[i]->pVmcsRegion));
     }
 
     DbgMsg("[VMX] VMX Operation turned off successfully for %llx logical processors", i);
@@ -164,7 +164,7 @@ void VTx::VmLaunch(ULONG ulProcessor, PEPTP pEpt)
     //
     // Allocate stack for the VM Exit Handler
     //
-    UINT64 VMM_STACK_VA = (UINT64)kMalloc(VMM_STACK_SIZE);
+    UINT64 VMM_STACK_VA = (UINT64)cpp::kMalloc(VMM_STACK_SIZE);
     globals::vGuestStates[ulProcessor]->pVmmStack = VMM_STACK_VA;
 
     if (globals::vGuestStates[ulProcessor]->pVmmStack == NULL)
@@ -174,7 +174,7 @@ void VTx::VmLaunch(ULONG ulProcessor, PEPTP pEpt)
     }
     RtlZeroMemory((PVOID)globals::vGuestStates[ulProcessor]->pVmmStack, VMM_STACK_SIZE);
 
-    //VMM_STACK_VA = (UINT64)kMalloc(VMM_STACK_SIZE);
+    //VMM_STACK_VA = (UINT64)cpp::kMalloc(VMM_STACK_SIZE);
     //globals::vGuestStates[ulProcessor]->pGuestStack = VMM_STACK_VA;
     //
     //if (globals::vGuestStates[ulProcessor]->pGuestStack == NULL)
@@ -471,11 +471,8 @@ bool VTx::AllocVmxonRegion(PVM_STATE pState)
 {
     DbgMsg("[MEM] Allocating VMXON Region...");
 
-    PHYSICAL_ADDRESS PhysicalMax = { 0 };
-    PhysicalMax.QuadPart = MAXULONG64;
-
     int VMXONSize = 2 * VMXON_SIZE;
-    BYTE* Buffer = (BYTE*)MmAllocateContiguousMemory(VMXONSize + ALIGNMENT_PAGE_SIZE, PhysicalMax); // Allocating a 4-KByte Contigous Memory region
+    BYTE* Buffer = (BYTE*)cpp::kMallocContinuous(VMXONSize + ALIGNMENT_PAGE_SIZE); // Allocating a 4-KByte Contigous Memory region
 
     PHYSICAL_ADDRESS Highest = { 0 };
     Highest.QuadPart = ~0;
@@ -523,11 +520,8 @@ bool VTx::AllocVmcsRegion(PVM_STATE pState)
 {
     DbgMsg("[MEM] Allocating VMCS Region...");
 
-    PHYSICAL_ADDRESS PhysicalMax = { 0 };
-    PhysicalMax.QuadPart = MAXULONG64;
-
     int    VMCSSize = 2 * VMCS_SIZE;
-    BYTE* Buffer = (BYTE*)MmAllocateContiguousMemory(VMCSSize + ALIGNMENT_PAGE_SIZE, PhysicalMax); // Allocating a 4-KByte Contigous Memory region
+    BYTE* Buffer = (BYTE*)cpp::kMallocContinuous(VMCSSize + ALIGNMENT_PAGE_SIZE); // Allocating a 4-KByte Contigous Memory region
 
     PHYSICAL_ADDRESS Highest = { 0 };
     Highest.QuadPart = ~0;

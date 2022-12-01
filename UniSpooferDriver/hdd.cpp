@@ -48,7 +48,7 @@ UINT64 GetRURI() {
 	}
 
 	ULONG size = sizeof(KEY_VALUE_PARTIAL_INFORMATION) + sizeof(UINT64);
-	PKEY_VALUE_PARTIAL_INFORMATION pInfo = (PKEY_VALUE_PARTIAL_INFORMATION)kMalloc(size);
+	PKEY_VALUE_PARTIAL_INFORMATION pInfo = (PKEY_VALUE_PARTIAL_INFORMATION)cpp::kMalloc(size);
 
 	ULONG out = 0;
 
@@ -61,7 +61,7 @@ UINT64 GetRURI() {
 		DbgMsg("Found registry value: %llx", offset);
 	}
 
-	kDelete(pInfo);
+	cpp::kFree(pInfo);
 	ZwClose(hKey);
 
 	return offset;
@@ -91,7 +91,7 @@ UINT64 GetDEDFP() {
 	}
 
 	ULONG size = sizeof(KEY_VALUE_PARTIAL_INFORMATION) + sizeof(UINT64);
-	PKEY_VALUE_PARTIAL_INFORMATION pInfo = (PKEY_VALUE_PARTIAL_INFORMATION)kMalloc(size);
+	PKEY_VALUE_PARTIAL_INFORMATION pInfo = (PKEY_VALUE_PARTIAL_INFORMATION)cpp::kMalloc(size);
 
 	ULONG out = 0;
 
@@ -104,7 +104,7 @@ UINT64 GetDEDFP() {
 		DbgMsg("Found registry value: %llx", offset);
 	}
 
-	kDelete(pInfo);
+	cpp::kFree(pInfo);
 	ZwClose(hKey);
 
 	return offset;
