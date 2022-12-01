@@ -18,6 +18,7 @@ typedef struct _VM_STATE
 	UINT64 paMsrBitmapPhysical;	// MSR Bitmap Physical Address
 	UINT64 ulGuestRsp;			// Guest saved rsp
 	UINT64 ulGuestRbp;			// Guest saved rbp
+	BOOLEAN bVmxOn;				// Is in VMX operation
 } VM_STATE, *PVM_STATE;
 
 //TYPE DEF DEFINITIONS

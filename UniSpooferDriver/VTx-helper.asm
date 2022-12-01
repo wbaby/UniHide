@@ -59,13 +59,15 @@ IsVmxEnabled ENDP
 
 ; void VmxSaveAndLaunch(DWORD64 rsp, DWORD64 rbp);
 VmxSaveAndLaunch PROC
-	mov [rcx], rsp	;save rsp
-	mov [rdx], rbp	;save rbp
-
 	mov rax, _end
 	push rax
 
+	mov [rcx], rsp	;save rsp
+	mov [rdx], rbp	;save rbp
+
 	vmlaunch
+
+	pop rax ; in case vmlaunch fails we restore the right return address
 _end:
 	ret
 VmxSaveAndLaunch ENDP
