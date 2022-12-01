@@ -36,10 +36,10 @@ bool VTx::Init()
         PVM_STATE pState = (PVM_STATE)kMalloc(sizeof(VM_STATE));
         globals::vGuestStates.Append(pState);
 
-        AllocVmxonRegion(globals::vGuestStates[i]);
-        AllocVmcsRegion(globals::vGuestStates[i]);
+        AllocVmxonRegion(pState);
+        AllocVmcsRegion(pState);
         
-        if (!globals::vGuestStates[i]->pVmcsRegion || !globals::vGuestStates[i]->pVmxonRegion) {
+        if (!pState->pVmcsRegion || !pState->pVmxonRegion) {
             DbgMsg("[VMX] Failed to allocate region for logical processor: %llx! Aborting initialization...", i);
             goto _error;
         }
@@ -81,10 +81,10 @@ bool VTx::VmxOn(PVOID pRegion)
 {
     DbgMsg("[VMX] VMXON called...");
     
-    int Status = __vmx_on((ULONGLONG*)pRegion);
-    if (Status)
+    char bStatus = __vmx_on((ULONGLONG*)pRegion);
+    if (bStatus && bStatus != 2 /*Status 2 means that Vmx was already ON*/)
     {
-        DbgMsg("[VMX] VMXON failed with status %x", Status);
+        DbgMsg("[VMX] VMXON failed with status %x", bStatus);
         return FALSE;
     }
     return TRUE;
@@ -326,7 +326,7 @@ bool VTx::VmcsSetup(PVM_STATE pState, PEPTP pEpt)
     __vmx_vmwrite(HOST_IA32_SYSENTER_ESP, __readmsr(MSR_IA32_SYSENTER_ESP));
 
     //Setup HOST stuff
-    SEGMENT_SELECTOR SegmentSelector = { 0 };
+    SEG_SELECTOR SegmentSelector = { 0 };
     GetSegDesc(&SegmentSelector, GetTr(), (PUCHAR)GetGdtBase());
     __vmx_vmwrite(HOST_TR_BASE, SegmentSelector.BASE);
     __vmx_vmwrite(HOST_FS_BASE, __readmsr(MSR_FS_BASE));
@@ -347,12 +347,13 @@ void VTx::VmExitHandler(PGUEST_REGS pGuestRegs)
 {
     ULONG ExitReason = 0;
     __vmx_vmread(VM_EXIT_REASON, (size_t*)&ExitReason);
+    ExitReason &= 0xffff;
 
     ULONG ExitQualification = 0;
     __vmx_vmread(EXIT_QUALIFICATION, (size_t*)&ExitQualification);
 
-    DbgMsg("[VMX] VM_EXIT_REASION 0x%x", ExitReason & 0xffff);
-    DbgMsg("[VMX] EXIT_QUALIFICATION 0x%x", ExitQualification);
+    DbgMsg("[VMEXIT] VM_EXIT_REASION 0x%x", ExitReason);
+    DbgMsg("[VMEXIT] EXIT_QUALIFICATION 0x%x", ExitQualification);
 
     switch (ExitReason)
     {
@@ -376,7 +377,7 @@ void VTx::VmExitHandler(PGUEST_REGS pGuestRegs)
     }
     case EXIT_REASON_HLT:
     {
-        DbgMsg("[VMX] Execution of HLT detected...");
+        DbgMsg("[VMEXIT] Execution of HLT detected...");
 
         //
         // that's enough for now ;)
@@ -418,7 +419,8 @@ void VTx::VmExitHandler(PGUEST_REGS pGuestRegs)
     }
     case EXIT_REASON_INVALID_GUEST_STATE:
     {
-        DbgMsg("[VMEXIT] Error: an invalid guest state was detected! Aborting...");
+        DbgMsg("[VMEXIT] Error: an invalid guest state was detected!");
+        Checks::CheckGuestVmcsFieldsForVmEntry();
         break;
     }
     default:
@@ -561,7 +563,7 @@ bool VTx::AllocVmcsRegion(PVM_STATE pState)
 
 void VTx::FillGuestData(PVOID pGdt, ULONG ulSegReg, USHORT usSelector)
 {
-    SEGMENT_SELECTOR SegmentSelector = { 0 };
+    SEG_SELECTOR SegmentSelector = { 0 };
     ULONG            AccessRights;
 
     GetSegDesc(&SegmentSelector, usSelector, pGdt);
@@ -576,9 +578,9 @@ void VTx::FillGuestData(PVOID pGdt, ULONG ulSegReg, USHORT usSelector)
     __vmx_vmwrite(GUEST_ES_BASE + ulSegReg * 2, SegmentSelector.BASE);
 }
 
-bool VTx::GetSegDesc(PSEGMENT_SELECTOR pSegSel, USHORT usSelector, PVOID pGdt)
+bool VTx::GetSegDesc(PSEG_SELECTOR pSegSel, USHORT usSelector, PVOID pGdt)
 {
-    PSEGMENT_DESCRIPTOR SegDesc;
+    PSEG_DESCRIPTOR SegDesc;
 
     if (!pSegSel)
         return FALSE;
@@ -588,7 +590,7 @@ bool VTx::GetSegDesc(PSEGMENT_SELECTOR pSegSel, USHORT usSelector, PVOID pGdt)
         return FALSE;
     }
 
-    SegDesc = (PSEGMENT_DESCRIPTOR)((PUCHAR)pGdt + (usSelector & ~0x7));
+    SegDesc = (PSEG_DESCRIPTOR)((PUCHAR)pGdt + (usSelector & ~0x7));
 
     pSegSel->SEL = usSelector;
     pSegSel->BASE = SegDesc->BASE0 | SegDesc->BASE1 << 16 | SegDesc->BASE2 << 24;

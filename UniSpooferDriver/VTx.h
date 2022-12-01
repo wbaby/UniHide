@@ -7,6 +7,7 @@
 #include "data.h"
 #include "MemoryEx.h"
 #include "EPT.h"
+#include "VMCSCheck.h"
 
 #define MSR_APIC_BASE            0x01B
 #define MSR_IA32_FEATURE_CONTROL 0x03A
@@ -199,7 +200,7 @@ enum VMCS_FIELDS {
     VIRTUAL_APIC_PAGE_ADDR_HIGH = 0x00002013,
     VMFUNC_CONTROLS = 0x00002018,
     VMFUNC_CONTROLS_HIGH = 0x00002019,
-    EPT_POINTER = 0x0000201A,
+    EPT_POINTER_LOW = 0x0000201A,
     EPT_POINTER_HIGH = 0x0000201B,
     EPTP_LIST = 0x00002024,
     EPTP_LIST_HIGH = 0x00002025,
@@ -352,15 +353,15 @@ typedef union SEGMENT_ATTRIBUTES
     } Fields;
 } SEGMENT_ATTRIBUTES;
 
-typedef struct SEGMENT_SELECTOR
+typedef struct _SEG_SELECTOR
 {
     USHORT             SEL;
     SEGMENT_ATTRIBUTES ATTRIBUTES;
     ULONG32            LIMIT;
     ULONG64            BASE;
-} SEGMENT_SELECTOR, * PSEGMENT_SELECTOR;
+} SEG_SELECTOR, * PSEG_SELECTOR;
 
-typedef struct _SEGMENT_DESCRIPTOR
+typedef struct _SEG_DESCRIPTOR
 {
     USHORT LIMIT0;
     USHORT BASE0;
@@ -368,7 +369,7 @@ typedef struct _SEGMENT_DESCRIPTOR
     UCHAR  ATTR0;
     UCHAR  LIMIT1ATTR1;
     UCHAR  BASE2;
-} SEGMENT_DESCRIPTOR, * PSEGMENT_DESCRIPTOR;
+} SEG_DESCRIPTOR, * PSEG_DESCRIPTOR;
 
 typedef union _MSR
 {
@@ -438,6 +439,6 @@ namespace VTx
     bool AllocVmxonRegion(PVM_STATE pState);
     bool AllocVmcsRegion(PVM_STATE pState);
     void FillGuestData(PVOID pGdt, ULONG ulSegReg, USHORT usSelector);
-    bool GetSegDesc(PSEGMENT_SELECTOR pSegSel, USHORT usSelector, PVOID pGdt);
+    bool GetSegDesc(PSEG_SELECTOR pSegSel, USHORT usSelector, PVOID pGdt);
     ULONG SetMsrCtl(ULONG ulCtl, ULONG ulMsr);
 };

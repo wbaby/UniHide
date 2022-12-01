@@ -118,7 +118,7 @@ UINT64 EPT::InitEptp(ULONG ulProcessor)
     //
     // Setting up EPTP
     //
-    EPTPointer->Fields.DirtyAndAceessEnabled = 1;
+    EPTPointer->Fields.DirtyAndAccessEnabled = 1;
     EPTPointer->Fields.MemoryType = 6; // 6 = Write-back (WB)
     EPTPointer->Fields.PageWalkLength = 3; // 4 (tables walked) - 1 = 3
     EPTPointer->Fields.PML4Address = ((UINT64)Memory::VirtToPhy((PVOID)((UINT64)(EptPml4))) / PAGE_SIZE);
