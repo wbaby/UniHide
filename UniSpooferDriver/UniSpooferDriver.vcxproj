@@ -155,12 +155,14 @@
     <ClInclude Include="EPT.h" />
     <ClInclude Include="events.h" />
     <ClInclude Include="hdd.h" />
+    <ClInclude Include="ia32.h" />
     <ClInclude Include="macros.h" />
     <ClInclude Include="main.h" />
     <ClInclude Include="MemoryEx.h" />
     <ClInclude Include="StringEx.h" />
     <ClInclude Include="utils.h" />
     <ClInclude Include="VectorEx.h" />
+    <ClInclude Include="VMCSCheck.h" />
     <ClInclude Include="VTx.h" />
   </ItemGroup>
   <ItemGroup>
@@ -173,6 +175,7 @@
     <ClCompile Include="MemoryEx.cpp" />
     <ClCompile Include="StringEx.cpp" />
     <ClCompile Include="utils.cpp" />
+    <ClCompile Include="VMCSCheck.cpp" />
     <ClCompile Include="VTx.cpp" />
   </ItemGroup>
   <ItemGroup>

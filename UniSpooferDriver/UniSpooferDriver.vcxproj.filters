@@ -93,6 +93,12 @@
     <ClInclude Include="events.h">
       <Filter>Header Files\libs</Filter>
     </ClInclude>
+    <ClInclude Include="VMCSCheck.h">
+      <Filter>Header Files\hyperv</Filter>
+    </ClInclude>
+    <ClInclude Include="ia32.h">
+      <Filter>Header Files\hyperv</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -123,6 +129,9 @@
       <Filter>Source Files\hyperv</Filter>
     </ClCompile>
     <ClCompile Include="EPT.cpp">
+      <Filter>Source Files\hyperv</Filter>
+    </ClCompile>
+    <ClCompile Include="VMCSCheck.cpp">
       <Filter>Source Files\hyperv</Filter>
     </ClCompile>
   </ItemGroup>
