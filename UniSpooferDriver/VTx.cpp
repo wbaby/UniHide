@@ -507,8 +507,8 @@ bool VTx::AllocVmxonRegion(PVM_STATE pState)
 
     pState->pVmxonRegion = AlignedPhysicalBuffer;
 
-    bool bStatus = VmxOn(&AlignedPhysicalBuffer);
-    if (!bStatus) {
+    char bStatus = VmxOn(&AlignedPhysicalBuffer);
+    if (!bStatus && bStatus != 2 /*Status 2 means that Vmx was already ON*/) {
         return FALSE;
     }
 
