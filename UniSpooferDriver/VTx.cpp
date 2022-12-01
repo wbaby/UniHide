@@ -215,12 +215,16 @@ void VTx::VmLaunch(ULONG ulProcessor, PEPTP pEpt)
     VmxSaveAndLaunch(globals::vGuestStates[ulProcessor]->ulGuestRsp, globals::vGuestStates[ulProcessor]->ulGuestRbp);
 
     //
-    // if VMLAUNCH succeeds will never be here!
+    // VMLAUNCH will return here if a breaking VMEXIT case occurs
     //
-    ULONG64 ErrorCode = 0;
-    __vmx_vmread(VM_INSTRUCTION_ERROR, &ErrorCode);
-    __vmx_off();
-    DbgMsg("[VMX] VMLAUNCH Error: 0x%llx", ErrorCode);
+
+    if (IsVmxEnabled() && globals::vGuestStates[ulProcessor]->bVmxOn) {
+        ULONG64 ErrorCode = 0;
+        __vmx_vmread(VM_INSTRUCTION_ERROR, &ErrorCode);
+        __vmx_off();
+        DbgMsg("[VMX] VMLAUNCH Error: 0x%llx", ErrorCode);
+    }
+
     return;
 
 _error:
@@ -341,15 +345,14 @@ bool VTx::VmcsSetup(PVM_STATE pState, PEPTP pEpt)
 
 void VTx::VmExitHandler(PGUEST_REGS pGuestRegs)
 {
-    size_t ExitReason = 0;
-    __vmx_vmread(VM_EXIT_REASON, &ExitReason);
+    ULONG ExitReason = 0;
+    __vmx_vmread(VM_EXIT_REASON, (size_t*)&ExitReason);
 
-    size_t ExitQualification = 0;
-    __vmx_vmread(EXIT_QUALIFICATION, &ExitQualification);
+    ULONG ExitQualification = 0;
+    __vmx_vmread(EXIT_QUALIFICATION, (size_t*)&ExitQualification);
 
-    DbgMsg("[VMX] VM_EXIT_REASION 0x%llx", ExitReason & 0xffff);
-    DbgMsg("[VMX] EXIT_QUALIFICATION 0x%llx", ExitQualification);
-    DbgLog(L"VMEXIT Caught!");
+    DbgMsg("[VMX] VM_EXIT_REASION 0x%x", ExitReason & 0xffff);
+    DbgMsg("[VMX] EXIT_QUALIFICATION 0x%x", ExitQualification);
 
     switch (ExitReason)
     {
@@ -374,12 +377,10 @@ void VTx::VmExitHandler(PGUEST_REGS pGuestRegs)
     case EXIT_REASON_HLT:
     {
         DbgMsg("[VMX] Execution of HLT detected...");
-        DbgLog(L"HLT Exception caught!");
 
         //
         // that's enough for now ;)
         //
-        VmxRestore(globals::vGuestStates[0]->ulGuestRsp, globals::vGuestStates[0]->ulGuestRbp);
 
         break;
     }
@@ -415,11 +416,19 @@ void VTx::VmExitHandler(PGUEST_REGS pGuestRegs)
     {
         break;
     }
+    case EXIT_REASON_INVALID_GUEST_STATE:
+    {
+        DbgMsg("[VMEXIT] Error: an invalid guest state was detected! Aborting...");
+        break;
+    }
     default:
     {
         break;
     }
     }
+
+    globals::vGuestStates[0]->bVmxOn = false;
+    VmxRestore(globals::vGuestStates[0]->ulGuestRsp, globals::vGuestStates[0]->ulGuestRbp);
 }
 
 void VTx::VmResumeExec()
@@ -501,6 +510,7 @@ bool VTx::AllocVmxonRegion(PVM_STATE pState)
         return FALSE;
     }
 
+    pState->bVmxOn = true;
     return TRUE;
 }
 
