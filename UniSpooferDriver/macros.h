@@ -4,7 +4,8 @@
 //#define _KDMAPPED
 
 #ifdef _DEBUG
-#define DbgMsg(x, ...) DbgPrintEx(0, 0, x, __VA_ARGS__)
+#define DbgMsg(x, ...) DbgPrintEx(0, 0, x##"\n", __VA_ARGS__)
+#define DbgLog(x) globals::evLogger.LogEvent(0, x)
 #else 
 #define DbgMsg(x, ...)
 #pragma warning (disable:4390)

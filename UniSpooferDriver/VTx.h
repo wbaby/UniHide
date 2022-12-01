@@ -409,7 +409,7 @@ namespace VTx
     extern "C" bool IsVmxEnabled();
     extern "C" bool EnableVmx();
     extern "C" bool DisableVmx();
-    extern "C" void SaveVmxState(DWORD64& rsp, DWORD64& rbp);
+    extern "C" void VmxSaveAndLaunch(DWORD64& rsp, DWORD64& rbp);
     extern "C" void VmxRestore(DWORD64 rsp, DWORD64 rbp);
     extern "C" void VmExitWrapper();
     extern "C" DWORD64 GetGdtBase();
@@ -431,7 +431,6 @@ namespace VTx
     bool VmClear(PVM_STATE pState);
     bool VmPtrld(PVM_STATE pState);
     void VmLaunch(ULONG ulProcessor, PEPTP pEpt);
-    void VmResume();
     bool VmcsSetup(PVM_STATE pState, PEPTP pEpt);
     extern "C" void VmExitHandler(PGUEST_REGS pGuestRegs);
     extern "C" void VmResumeExec();

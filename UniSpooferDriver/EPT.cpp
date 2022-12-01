@@ -9,7 +9,6 @@ UINT64 EPT::InitEptp(ULONG ulProcessor)
         return 0;
     }
 
-	PAGED_CODE();
     PEPTP EPTPointer = (PEPTP)kMalloc(PAGE_SIZE);
     PEPT_PML4E EptPml4 = nullptr;
     PEPT_PDE EptPdpt = nullptr;

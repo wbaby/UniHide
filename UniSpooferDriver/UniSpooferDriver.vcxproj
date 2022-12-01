@@ -99,11 +99,12 @@
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <ControlFlowGuard>false</ControlFlowGuard>
       <SDLCheck>false</SDLCheck>
-      <DisableSpecificWarnings>4603;4627;4986;4987;4210;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4603;4627;4986;4987;4210;4702;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <EntryPointSymbol>DriverEntryInit</EntryPointSymbol>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+      <TreatLinkerWarningAsErrors>false</TreatLinkerWarningAsErrors>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -115,11 +116,12 @@
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <ControlFlowGuard>false</ControlFlowGuard>
       <SDLCheck>false</SDLCheck>
-      <DisableSpecificWarnings>4603;4627;4986;4987;4210;%(DisableSpecificWarnings)4210;</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4603;4627;4986;4987;4210;4702;%(DisableSpecificWarnings)4210;</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <EntryPointSymbol>DriverEntryInit</EntryPointSymbol>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+      <TreatLinkerWarningAsErrors>false</TreatLinkerWarningAsErrors>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
@@ -166,7 +168,6 @@
     <ClCompile Include="cpp.cpp" />
     <ClCompile Include="data.cpp" />
     <ClCompile Include="EPT.cpp" />
-    <ClCompile Include="events.cpp" />
     <ClCompile Include="hdd.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MemoryEx.cpp" />

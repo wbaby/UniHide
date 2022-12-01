@@ -1,3 +1,5 @@
+;x64 ABI is described here https://learn.microsoft.com/en-us/cpp/build/x64-calling-convention
+
 PUBLIC IsVmxSupported
 PUBLIC EnableVmx
 PUBLIC DisableVmx
@@ -8,7 +10,7 @@ EXTERN VmResumeExec:PROC
 
 .code _text
 
-; char __fastcall IsVmxSupported();
+; char IsVmxSupported();
 IsVmxSupported PROC
 	mov rax, 1
 	cpuid
@@ -20,7 +22,7 @@ done:
 	ret
 IsVmxSupported ENDP
 
-; char __fastcall EnableVmx();
+; char EnableVmx();
 EnableVmx PROC
 	xor rax, rax
 	mov rax, cr4
@@ -32,7 +34,7 @@ EnableVmx PROC
 	ret
 EnableVmx ENDP
 
-; char __fastcall DisableVmx();
+; char DisableVmx();
 DisableVmx PROC
 	xor rax, rax
 	mov rax, cr4
@@ -44,7 +46,7 @@ DisableVmx PROC
 	ret
 DisableVmx ENDP
 
-; char __fastcall IsVmxEnabled();
+; char IsVmxEnabled();
 IsVmxEnabled PROC
 	mov eax, 1
 	mov rcx, cr4
@@ -55,110 +57,105 @@ done:
 	ret
 IsVmxEnabled ENDP
 
-; void __fastcall SaveVmxState(DWORD64 rsp, DWORD64 rbp);
-SaveVmxState PROC
-	xor eax, eax
+; void VmxSaveAndLaunch(DWORD64 rsp, DWORD64 rbp);
+VmxSaveAndLaunch PROC
 	mov [rcx], rsp	;save rsp
 	mov [rdx], rbp	;save rbp
-	ret
-SaveVmxState ENDP
 
-; void __fastcall VmxRestore(DWORD64 rsp, DWORD64 rbp);
+	mov rax, _end
+	push rax
+
+	vmlaunch
+_end:
+	ret
+VmxSaveAndLaunch ENDP
+
+; void VmxRestore(DWORD64 rsp, DWORD64 rbp);
 VmxRestore PROC
 	vmxoff 
 
 	mov rsp, rcx	;restore rsp
 	mov rbp, rdx	;restore rbp
 
-	add rsp, 8		;align stack pointer
-
-	mov rax, 1		;ret value
-
-	mov rbx, [rsp+28h+8h]
-	mov rbp, [rsp+28h+10h]
-	mov rdi, [rsp+28h+30h]
-	add rsp, 20h
-	pop r14
-
 	ret
 VmxRestore ENDP
 
-; DWORD64 __fastcall GetGdtBase();
+; DWORD64 GetGdtBase();
 GetGdtBase PROC
 	LOCAL GDTR[10]:BYTE
 	sgdt GDTR					; save global descriptor table register in local GDTR
 	mov rax, qword ptr GDTR[2]	; the first 2 bytes indicate the GDT size
 	ret
 GetGdtBase ENDP
-; DWORD32 __fastcall GetGdtLimit();
+; DWORD32 GetGdtLimit();
 GetGdtLimit PROC
 	LOCAL GDTR[10]:BYTE
 	sgdt GDTR					; save global descriptor table register in local GDTR
 	mov ax, word ptr GDTR[0]	; the first 2 bytes indicate the GDT size
 	ret
 GetGdtLimit ENDP
-; DWORD64 __fastcall GetIdtBase();
+; DWORD64 GetIdtBase();
 GetIdtBase PROC
 	LOCAL IDTR[10]:BYTE
 	sidt IDTR					; save interrupt descriptor table in local IDTR
 	mov rax, qword ptr IDTR[2]	; the first 2 bytes indicate the GDT size
 	ret
 GetIdtBase ENDP
-; DWORD32 __fastcall GetIdtLimit();
+; DWORD32 GetIdtLimit();
 GetIdtLimit PROC
 	LOCAL IDTR[10]:BYTE
 	sidt IDTR					; save interrupt descriptor table in local IDTR
 	mov ax, word ptr IDTR[0]	; the first 2 bytes indicate the GDT size
 	ret
 GetIdtLimit ENDP
-; USHORT __fastcall GetCs();
+; USHORT GetCs();
 GetCs PROC
 	mov rax, cs
 	ret
 GetCs ENDP
-; USHORT __fastcall GetDs();
+; USHORT GetDs();
 GetDs PROC
 	mov rax, ds
 	ret
 GetDs ENDP
-; USHORT __fastcall GetEs();
+; USHORT GetEs();
 GetEs PROC
 	mov rax, es
 	ret
 GetEs ENDP
-; USHORT __fastcall GetSs();
+; USHORT GetSs();
 GetSs PROC
 	mov rax, ss
 	ret
 GetSs ENDP
-; USHORT __fastcall GetFs();
+; USHORT GetFs();
 GetFs PROC
 	mov rax, fs
 	ret
 GetFs ENDP
-; USHORT __fastcall GetGs();
+; USHORT GetGs();
 GetGs PROC
 	mov rax, gs
 	ret
 GetGs ENDP
-; USHORT __fastcall GetRflags();
+; USHORT GetRflags();
 GetRflags PROC
 	PUSHFQ
 	pop rax
 	ret
 GetRflags ENDP
-; USHORT __fastcall GetLdtr();
+; USHORT GetLdtr();
 GetLdtr PROC
 	sldt rax
 	ret
 GetLdtr ENDP
-; USHORT __fastcall GetTr();
+; USHORT GetTr();
 GetTr PROC
 	str rax
 	ret
 GetTr ENDP
 
-; void __fastcall VmExitWrapper();
+; void VmExitWrapper();
 VmExitWrapper PROC
 	push r15
 	push r14

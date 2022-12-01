@@ -159,8 +159,6 @@ void VTx::VmLaunch(ULONG ulProcessor, PEPTP pEpt)
     kAffinity = 2 << ulProcessor;
     KeSetSystemAffinityThread(kAffinity);
 
-    PAGED_CODE();
-
     //
     // Allocate stack for the VM Exit Handler
     //
@@ -199,6 +197,7 @@ void VTx::VmLaunch(ULONG ulProcessor, PEPTP pEpt)
     //
     // Clear the VMCS State
     //
+
     if (!VmClear(globals::vGuestStates[ulProcessor])) {
         goto _error;
     }
@@ -212,11 +211,8 @@ void VTx::VmLaunch(ULONG ulProcessor, PEPTP pEpt)
 
     VmcsSetup(globals::vGuestStates[ulProcessor], pEpt);
 
-    SaveVmxState(globals::vGuestStates[ulProcessor]->ulGuestRsp, globals::vGuestStates[ulProcessor]->ulGuestRbp);
-
     DbgMsg("[VMX] Calling VMLAUNCH...");
-
-    //__vmx_vmlaunch();
+    VmxSaveAndLaunch(globals::vGuestStates[ulProcessor]->ulGuestRsp, globals::vGuestStates[ulProcessor]->ulGuestRbp);
 
     //
     // if VMLAUNCH succeeds will never be here!
@@ -231,28 +227,10 @@ _error:
     DbgMsg("[VMX] There was an error starting the VM on logical processor: 0x%x", ulProcessor);
 }
 
-void VTx::VmResume()
-{
-    DbgMsg("[VMX] Resuming execution...");
-
-    __vmx_vmresume();
-
-    // if VMRESUME succeeds will never be here !
-    ULONG64 ErrorCode = 0;
-    __vmx_vmread(VM_INSTRUCTION_ERROR, &ErrorCode);
-    __vmx_off();
-    DbgMsg("[VMA] VMRESUME Error : 0x%llx", ErrorCode);
-
-    //
-    // It's such a bad error because we don't where to go!
-    // prefer to break
-    //
-    DbgBreakPoint();
-}
-
 bool VTx::VmcsSetup(PVM_STATE pState, PEPTP pEpt)
 {
     DbgMsg("[VMX] Setupping VMCS...");
+    DbgLog(L"Setupping VMCS");
 
     __vmx_vmwrite(HOST_ES_SELECTOR, GetEs() & 0xF8);
     __vmx_vmwrite(HOST_CS_SELECTOR, GetCs() & 0xF8);
@@ -357,6 +335,7 @@ bool VTx::VmcsSetup(PVM_STATE pState, PEPTP pEpt)
     __vmx_vmwrite(HOST_RSP, ((ULONG64)pState->pVmmStack + VMM_STACK_SIZE - 1));
     __vmx_vmwrite(HOST_RIP, (ULONG64)VmExitWrapper);
 
+    DbgMsg("[VMX] Successfully setup VMCS");
     return true;
 }
 
@@ -370,6 +349,7 @@ void VTx::VmExitHandler(PGUEST_REGS pGuestRegs)
 
     DbgMsg("[VMX] VM_EXIT_REASION 0x%llx", ExitReason & 0xffff);
     DbgMsg("[VMX] EXIT_QUALIFICATION 0x%llx", ExitQualification);
+    DbgLog(L"VMEXIT Caught!");
 
     switch (ExitReason)
     {
@@ -394,6 +374,7 @@ void VTx::VmExitHandler(PGUEST_REGS pGuestRegs)
     case EXIT_REASON_HLT:
     {
         DbgMsg("[VMX] Execution of HLT detected...");
+        DbgLog(L"HLT Exception caught!");
 
         //
         // that's enough for now ;)
@@ -444,6 +425,7 @@ void VTx::VmExitHandler(PGUEST_REGS pGuestRegs)
 void VTx::VmResumeExec()
 {
     DbgMsg("[VMX] Resuming execution...");
+    DbgLog(L"Calling VMRESUME...");
 
     __vmx_vmresume();
 
@@ -453,12 +435,6 @@ void VTx::VmResumeExec()
     __vmx_vmread(VM_INSTRUCTION_ERROR, &ErrorCode);
     __vmx_off();
     DbgMsg("[VMX] VMRESUME Error : 0x%llx", ErrorCode);
-
-    //
-    // It's such a bad error because we don't where to go!
-    // prefer to break
-    //
-    DbgBreakPoint();
 }
 
 void VTx::MoveRip()
@@ -480,10 +456,6 @@ void VTx::MoveRip()
 bool VTx::AllocVmxonRegion(PVM_STATE pState)
 {
     DbgMsg("[MEM] Allocating VMXON Region...");
-
-    // at IRQL > DISPATCH_LEVEL memory allocation routines don't work
-    if (KeGetCurrentIrql() > DISPATCH_LEVEL)
-        KeRaiseIrqlToDpcLevel();
 
     PHYSICAL_ADDRESS PhysicalMax = { 0 };
     PhysicalMax.QuadPart = MAXULONG64;
@@ -535,12 +507,6 @@ bool VTx::AllocVmxonRegion(PVM_STATE pState)
 bool VTx::AllocVmcsRegion(PVM_STATE pState)
 {
     DbgMsg("[MEM] Allocating VMCS Region...");
-
-    //
-    // at IRQL > DISPATCH_LEVEL memory allocation routines don't work
-    //
-    if (KeGetCurrentIrql() > DISPATCH_LEVEL)
-        KeRaiseIrqlToDpcLevel();
 
     PHYSICAL_ADDRESS PhysicalMax = { 0 };
     PhysicalMax.QuadPart = MAXULONG64;

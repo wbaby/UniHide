@@ -24,7 +24,7 @@ void Collector::Remove(void* p)
 
 void Collector::Clean()
 {
-	DbgMsg("Number of leaked memory pools: %d \n", myGarbage->Length());
+	DbgMsg("Number of leaked memory pools: %d", myGarbage->Length());
 	//Dispose of pointers stored inside node's objects
 	node<void*>* curNode = myGarbage->First();
 	for (int i = 0; i < myGarbage->Length(); i++) {
@@ -34,8 +34,8 @@ void Collector::Clean()
 		//DbgMsg("Deleted object at %d \n", (size_t)curNode->obj);
 		curNode = nextNode;
 	}
-	DbgMsg("Disposed of leaked memory\n");
+	DbgMsg("Disposed of leaked memory");
 	//Dispose of nodes and vector object
 	kDelete((void*)myGarbage, false);
-	DbgMsg("Disposed of garbage collector\n");
+	DbgMsg("Disposed of garbage collector");
 }
