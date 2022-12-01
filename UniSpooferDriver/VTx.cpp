@@ -105,6 +105,7 @@ void VTx::VmxOff()
         DbgMsg("[VMX] Calling VMXOFF for logical processor: %llx", i);
 
         __vmx_off();
+        globals::vGuestStates[i]->bVmxOn = false;
 
         MmFreeContiguousMemory(Memory::PhyToVirt((PVOID)globals::vGuestStates[i]->pVmxonRegion));
         MmFreeContiguousMemory(Memory::PhyToVirt((PVOID)globals::vGuestStates[i]->pVmcsRegion));
@@ -129,12 +130,13 @@ bool VTx::VmClear(PVM_STATE pState)
     // Clear the state of the VMCS to inactive
     int status = __vmx_vmclear(&pState->pVmcsRegion);
 
-    DbgMsg("[VMX] VMCS VMCLAEAR Status is : %d", status);
+    DbgMsg("[VMX] VMCLEAR Status is : %d", status);
     if (status)
     {
         // Otherwise, terminate the VMX
-        DbgMsg("[VMX] VMCS failed to clear with status %d", status);
+        DbgMsg("[VMX] VMCLEAR failed with status %d", status);
         __vmx_off();
+        pState->bVmxOn = false;
         return FALSE;
     }
     return TRUE;
@@ -222,6 +224,7 @@ void VTx::VmLaunch(ULONG ulProcessor, PEPTP pEpt)
         ULONG64 ErrorCode = 0;
         __vmx_vmread(VM_INSTRUCTION_ERROR, &ErrorCode);
         __vmx_off();
+        globals::vGuestStates[ulProcessor]->bVmxOn = false;
         DbgMsg("[VMX] VMLAUNCH Error: 0x%llx", ErrorCode);
     }
 
@@ -436,7 +439,6 @@ void VTx::VmExitHandler(PGUEST_REGS pGuestRegs)
 void VTx::VmResumeExec()
 {
     DbgMsg("[VMX] Resuming execution...");
-    DbgLog(L"Calling VMRESUME...");
 
     __vmx_vmresume();
 
@@ -444,7 +446,8 @@ void VTx::VmResumeExec()
 
     ULONG64 ErrorCode = 0;
     __vmx_vmread(VM_INSTRUCTION_ERROR, &ErrorCode);
-    __vmx_off();
+    VmxOff();
+
     DbgMsg("[VMX] VMRESUME Error : 0x%llx", ErrorCode);
 }
 
