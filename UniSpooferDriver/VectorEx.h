@@ -48,8 +48,8 @@ public:
 		length = 1;
 	};
 	static vector<T>* create() {
-		auto vec = (vector<void*>*)ExAllocatePoolWithTag(NonPagedPool, sizeof(vector<void*>), 'eVyM');
-		new (vec) vector<void*>;
+		auto vec = (vector<T>*)ExAllocatePoolWithTag(NonPagedPool, sizeof(vector<T>), 'eVyM');
+		new (vec) vector<T>;
 		return vec;
 	}
 	//This will dispose of every node, but the vec obj must be disposed of manually
@@ -74,8 +74,13 @@ public:
 		return lastNode;
 	};
 	void Remove(T& obj, bool collect = true) {
+		bool bFound = false;
 		node<T>* curNode = firstNode;
-		while (curNode->obj != obj && curNode != lastNode) {
+		while (curNode != lastNode) {
+			if (curNode->obj == obj) {
+				bFound = true;
+				break;
+			}
 			curNode = curNode->fLink;
 		}
 		if (curNode == firstNode) {
@@ -83,7 +88,7 @@ public:
 			firstNode->bLink = firstNode;
 		}
 		else if (curNode == lastNode) {
-			if (curNode->obj == obj) {
+			if (bFound) {
 				lastNode = curNode->bLink;
 				lastNode->fLink = lastNode;
 			}
@@ -98,8 +103,40 @@ public:
 		cpp::kFree(curNode, collect);
 		length--;
 	};
-	bool Append(T& obj) {
-		node<T>* n = node<T>::create(&obj, lastNode);
+
+	template<typename F>
+	void RemoveWhere(F pCallback, bool collect = true) {
+		bool bFound = false;
+		node<T>* curNode = firstNode;
+		while (curNode != lastNode) {
+			if (pCallback(curNode->obj)) {
+				bFound = true;
+				break;
+			}
+			curNode = curNode->fLink;
+		}
+		if (curNode == firstNode) {
+			firstNode = curNode->fLink;
+			firstNode->bLink = firstNode;
+		}
+		else if (curNode == lastNode) {
+			if (bFound) {
+				lastNode = curNode->bLink;
+				lastNode->fLink = lastNode;
+			}
+			else {
+				return;
+			}
+		}
+		else {
+			curNode->bLink->fLink = curNode->fLink;
+			curNode->fLink->bLink = curNode->bLink;
+		}
+		cpp::kFree(curNode, collect);
+		length--;
+	}
+	bool Append(T& obj, bool collect = true) {
+		node<T>* n = node<T>::create(&obj, lastNode, collect);
 		if (lastNode == firstNode)
 			lastNode = n;
 		n->bLink = lastNode;
@@ -115,8 +152,8 @@ public:
 		length++;
 		return true;
 	};
-	template <class ... C>
-	bool emplace_back(C ... c, bool collect = true) {
+	template <typename ... C>
+	bool emplace_back(C& ... c, bool collect = true) {
 		T obj(c ...);
 		node<T>* n = node<T>::create(&obj, lastNode, collect);
 

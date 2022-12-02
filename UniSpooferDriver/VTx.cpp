@@ -107,8 +107,8 @@ void VTx::VmxOff()
         __vmx_off();
         globals::vGuestStates[i]->bVmxOn = false;
 
-        cpp::kFreeContinuous(Memory::PhyToVirt((PVOID)globals::vGuestStates[i]->pVmxonRegion));
-        cpp::kFreeContinuous(Memory::PhyToVirt((PVOID)globals::vGuestStates[i]->pVmcsRegion));
+        cpp::kFree(Memory::PhyToVirt((PVOID)globals::vGuestStates[i]->pVmxonRegion));
+        cpp::kFree(Memory::PhyToVirt((PVOID)globals::vGuestStates[i]->pVmcsRegion));
     }
 
     DbgMsg("[VMX] VMX Operation turned off successfully for %llx logical processors", i);
@@ -187,7 +187,7 @@ void VTx::VmLaunch(ULONG ulProcessor, PEPTP pEpt)
     //
     // Allocate memory for MSRBitMap
     //
-    globals::vGuestStates[ulProcessor]->vaMsrBitmap = (UINT64)MmAllocateNonCachedMemory(PAGE_SIZE); // should be aligned
+    globals::vGuestStates[ulProcessor]->vaMsrBitmap = (UINT64)cpp::kMallocNonCached(PAGE_SIZE); // should be aligned
     if (globals::vGuestStates[ulProcessor]->vaMsrBitmap == NULL)
     {
         DbgMsg("[VMX] Error in allocating MSRBitMap.");

@@ -11,10 +11,10 @@ void* cpp::kMalloc(size_t size, POOL_TYPE pool_type, bool collect)
 #endif
 
     if (p == nullptr) {
-        DbgMsg("Failed to allocate %d bytes\n", (int)size);
+        DbgMsg("Failed to allocate %d bytes", (int)size);
     }
     if (collect)
-        Collector::Add(p);
+        Collector::Add(p, NonPaged);
     return p;
 }
 
@@ -24,14 +24,14 @@ void* cpp::kMalloc(size_t size, int sig, bool collect)
     p = ExAllocatePoolWithTag(NonPagedPool, size, sig);
 
     if (p == nullptr) {
-        DbgMsg("Failed to allocate %d bytes\n", (int)size);
+        DbgMsg("Failed to allocate %d bytes", (int)size);
     }
     if (collect)
-        Collector::Add(p);
+        Collector::Add(p, NonPaged);
     return p;
 }
 
-void* cpp::kMallocContinuous(size_t size, bool collect)
+void* cpp::kMallocContinuous(size_t size)
 {
     void* p;
     PHYSICAL_ADDRESS PhysicalMax = { 0 };
@@ -39,10 +39,23 @@ void* cpp::kMallocContinuous(size_t size, bool collect)
     p = MmAllocateContiguousMemory(size, PhysicalMax);
 
     if (p == nullptr) {
-        DbgMsg("Failed to allocate %d bytes\n", (int)size);
+        DbgMsg("Failed to allocate %d continuous bytes", (int)size);
     }
-    if (collect)
-        Collector::Add(p);
+    Collector::Add(p, Continuous);
+
+    return p;
+}
+
+void* cpp::kMallocNonCached(size_t size)
+{
+    void* p;
+    p = MmAllocateNonCachedMemory(size);
+
+    if (p == nullptr) {
+        DbgMsg("Failed to allocate %d non cached bytes", (int)size);
+    }
+    Collector::Add(p, NonCached, size);
+
     return p;
 }
 
@@ -50,17 +63,5 @@ void* operator new(size_t /* ignored */, void* where) { return where; };
 
 void cpp::kFree(void* pObj, bool collect)
 {
-    ExFreePool(pObj);
-
-    if(collect)
-        Collector::Remove(pObj);
+    Collector::Clean(pObj, collect);
 }
-
-void cpp::kFreeContinuous(void* pObj, bool collect)
-{
-    MmFreeContiguousMemory(pObj);
-
-    if (collect)
-        Collector::Remove(pObj);
-}
-
