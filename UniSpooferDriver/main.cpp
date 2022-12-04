@@ -14,13 +14,13 @@ NTSTATUS EntryPoint(PDRIVER_OBJECT pDriverObject, PUNICODE_STRING pRegistryPath)
     DbgMsg("Redirecting to Driver Entry..");
 
     Collector::Init();
-    globals::Init(pDriverObject);
+    Globals::Init(pDriverObject);
 
-    DbgMsg("Current driver name: %ls", globals::CurrentDriverName);
+    DbgMsg("Current driver name: %ls", Globals::CurrentDriverName);
     
     UNICODE_STRING driver_name;
     NTSTATUS status;
-    RtlInitUnicodeString(&driver_name, globals::CurrentDriverName);
+    RtlInitUnicodeString(&driver_name, Globals::CurrentDriverName);
     status = IoCreateDriver(&driver_name, &EntryInit);
 
     return status;
@@ -33,7 +33,7 @@ NTSTATUS EntryInit(PDRIVER_OBJECT pDriverObject, PUNICODE_STRING pRegistryPath)
     pDriverObject->DriverUnload = (PDRIVER_UNLOAD)UnloadDriver;
 
     Collector::Init();
-    globals::Init(pDriverObject);
+    Globals::Init(pDriverObject);
 
     if (!VTx::Init()) {
         DbgMsg("There was an error during VTx Initialization...");
@@ -48,14 +48,14 @@ NTSTATUS EntryInit(PDRIVER_OBJECT pDriverObject, PUNICODE_STRING pRegistryPath)
             return FALSE;
         }
     
-        globals::vGuestStates[i]->pEpt = pEtp;
+        Globals::vGuestStates[i]->pEpt = pEtp;
     
-        memset((PVOID)globals::vGuestStates[i]->pGuestMem, 0xF4, 100 * PAGE_SIZE);
+        memset((PVOID)Globals::vGuestStates[i]->pGuestMem, 0xF4, 100 * PAGE_SIZE);
     
         //
         // Launching VM for Test (in the 0th virtual processor)
         //
-        VTx::VmLaunch(0, (PEPTP)globals::vGuestStates[i]->pEpt);
+        VTx::VmLaunch(0, (PEPTP)Globals::vGuestStates[i]->pEpt);
     }
 
 _end:

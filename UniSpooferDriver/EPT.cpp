@@ -4,7 +4,7 @@ UINT64 EPT::InitEptp(ULONG ulProcessor)
 {
     DbgMsg("[EPT] Initializing EPT pointer...");
 
-    if (!((2 << ulProcessor) & globals::ulProcessorMask)) {
+    if (!((2 << ulProcessor) & Globals::ulProcessorMask)) {
         DbgMsg("[EPT] Error: specified processor 0x%x is not VMX enabled", ulProcessor);
         return 0;
     }
@@ -56,7 +56,7 @@ UINT64 EPT::InitEptp(ULONG ulProcessor)
     //
     const int PagesToAllocate = 100;
     UINT64 GuestMemory = (UINT64)cpp::kMalloc(PagesToAllocate * PAGE_SIZE);
-    globals::vGuestStates[ulProcessor]->pGuestMem = GuestMemory;
+    Globals::vGuestStates[ulProcessor]->pGuestMem = GuestMemory;
     RtlZeroMemory((PVOID)GuestMemory, PagesToAllocate * PAGE_SIZE);
 
     for (size_t i = 0; i < PagesToAllocate; i++)

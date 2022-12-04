@@ -150,6 +150,7 @@
     <ClInclude Include="classspnp.h" />
     <ClInclude Include="collector.h" />
     <ClInclude Include="cpp.h" />
+    <ClInclude Include="cpu.h" />
     <ClInclude Include="data.h" />
     <ClInclude Include="dictionary.h" />
     <ClInclude Include="EPT.h" />
@@ -168,6 +169,7 @@
   <ItemGroup>
     <ClCompile Include="collector.cpp" />
     <ClCompile Include="cpp.cpp" />
+    <ClCompile Include="cpu.cpp" />
     <ClCompile Include="data.cpp" />
     <ClCompile Include="EPT.cpp" />
     <ClCompile Include="hdd.cpp" />

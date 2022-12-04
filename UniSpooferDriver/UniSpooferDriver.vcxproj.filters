@@ -99,6 +99,9 @@
     <ClInclude Include="ia32.h">
       <Filter>Header Files\hyperv</Filter>
     </ClInclude>
+    <ClInclude Include="cpu.h">
+      <Filter>Header Files\libs</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -133,6 +136,9 @@
     </ClCompile>
     <ClCompile Include="VMCSCheck.cpp">
       <Filter>Source Files\hyperv</Filter>
+    </ClCompile>
+    <ClCompile Include="cpu.cpp">
+      <Filter>Source Files\libs</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

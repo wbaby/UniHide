@@ -25,17 +25,20 @@ typedef struct _VM_STATE
 typedef char BOOL;
 typedef char BYTE;
 
-typedef struct Globals {
-	static WCHAR UniHideKeysPath[512];
-	static WCHAR CurrentDriverName[64];
-	static bool IsInitialized;
+namespace Globals {
+	extern WCHAR UniHideKeysPath[];
+	extern WCHAR CurrentDriverName[];
+	extern bool IsInitialized;
 
 	//Hypervisor related
-	static vector<PVM_STATE> vGuestStates;
-	static ULONG ulProcessorMask;
+	extern vector<PVM_STATE> vGuestStates;
+	extern ULONG ulProcessorMask;
 
 	//Logging
-	static EventLogger evLogger;
+	extern EventLogger evLogger;
 
-	static void Init(PDRIVER_OBJECT pDevice);
-} globals;
+	//CPU
+	extern size_t szEndFlag; //StopVirt in ASCII
+
+	void Init(PDRIVER_OBJECT pDevice);
+}

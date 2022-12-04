@@ -5,7 +5,7 @@
 
 #ifdef _DEBUG
 #define DbgMsg(x, ...) DbgPrintEx(0, 0, x##"\n", __VA_ARGS__)
-#define DbgLog(x) globals::evLogger.LogEvent(0, x)
+#define DbgLog(x) Globals::evLogger.LogEvent(0, x)
 #else 
 #define DbgMsg(x, ...)
 #pragma warning (disable:4390)
@@ -30,3 +30,6 @@
 #define DRIVER_NAME "Loader"
 #define DRIVER_LNK_NAME "Loader"
 #define DRIVER_IMPORT_API extern "C"
+
+//Hypervisor
+#define HYPERV_HANDLER __forceinline

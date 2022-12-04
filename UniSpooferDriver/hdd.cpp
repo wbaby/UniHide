@@ -31,7 +31,7 @@ UINT64 GetRURI() {
 	UNICODE_STRING Name;
 	UNICODE_STRING ValueName;
 	HANDLE hKey;
-	RtlInitUnicodeString(&Name, globals::UniHideKeysPath);
+	RtlInitUnicodeString(&Name, Globals::UniHideKeysPath);
 	RtlInitUnicodeString(&ValueName, L"RURIOffset");
 
 	InitializeObjectAttributes(&KeyAttributes,
@@ -74,7 +74,7 @@ UINT64 GetDEDFP() {
 	UNICODE_STRING Name;
 	UNICODE_STRING ValueName;
 	HANDLE hKey;
-	RtlInitUnicodeString(&Name, globals::UniHideKeysPath);
+	RtlInitUnicodeString(&Name, Globals::UniHideKeysPath);
 	RtlInitUnicodeString(&ValueName, L"DEDFPOffset");
 
 	InitializeObjectAttributes(&KeyAttributes,
