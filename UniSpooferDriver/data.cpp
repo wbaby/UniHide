@@ -8,12 +8,13 @@ wchar_t Globals::UniHideKeysPath[512] = {0};
 wchar_t Globals::CurrentDriverName[64] = { 0 };
 bool Globals::IsInitialized = false;
 
-vector<PVM_STATE> Globals::vGuestStates;
-ULONG Globals::ulProcessorMask = 0;
+vector<PVM_STATE> Globals::Hyperv::vGuestStates;
+ULONG Globals::Hyperv::ulProcessorMask = 0;
 
-EventLogger Globals::evLogger;
+EventLogger Globals::Log::evLogger;
 
-size_t Globals::szEndFlag = 0x53746f7056697274; //StopVirt in ASCII
+size_t Globals::CPU::szEndFlag = 0x53746f7056697274; //StopVirt in ASCII
+DWORD32 Globals::CPU::chInterfaceID = 'UnHD';
 
 void Globals::Init(PDRIVER_OBJECT pDevice)
 {
@@ -29,7 +30,7 @@ void Globals::Init(PDRIVER_OBJECT pDevice)
     memcpy(Globals::CurrentDriverName, L"\\Driver\\", 8 * 2);
     memcpy(Globals::CurrentDriverName + 8, SPOOFER_TMP, sizeof(SPOOFER_TMP));
 
-    evLogger.pDevice = pDevice;
+    Log::evLogger.pDevice = pDevice;
 
     DbgMsg("Successfully initialized global variables");
 }

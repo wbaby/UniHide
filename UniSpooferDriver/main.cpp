@@ -48,14 +48,14 @@ NTSTATUS EntryInit(PDRIVER_OBJECT pDriverObject, PUNICODE_STRING pRegistryPath)
             return FALSE;
         }
     
-        Globals::vGuestStates[i]->pEpt = pEtp;
+        Globals::Hyperv::vGuestStates[i]->pEpt = pEtp;
     
-        memset((PVOID)Globals::vGuestStates[i]->pGuestMem, 0xF4, 100 * PAGE_SIZE);
+        memset((PVOID)Globals::Hyperv::vGuestStates[i]->pGuestMem, 0xF4, 100 * PAGE_SIZE);
     
         //
         // Launching VM for Test (in the 0th virtual processor)
         //
-        VTx::VmLaunch(0, (PEPTP)Globals::vGuestStates[i]->pEpt);
+        VTx::VmLaunch(0, (PEPTP)Globals::Hyperv::vGuestStates[i]->pEpt);
     }
 
 _end:

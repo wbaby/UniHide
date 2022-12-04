@@ -18,7 +18,7 @@ bool VTx::Init()
     for (size_t i = 0; i < ulMaxProc; i++)
     {
         AffinityMask = 2 << i;
-        Globals::ulProcessorMask |= AffinityMask;
+        Globals::Hyperv::ulProcessorMask |= AffinityMask;
 
         KeSetSystemAffinityThread(AffinityMask);
 
@@ -34,7 +34,7 @@ bool VTx::Init()
         DbgMsg("[VMX] VMX Operation Enabled for logical processor: %llx", i);
 
         PVM_STATE pState = (PVM_STATE)cpp::kMalloc(sizeof(VM_STATE));
-        Globals::vGuestStates.Append(pState);
+        Globals::Hyperv::vGuestStates.Append(pState);
 
         AllocVmxonRegion(pState);
         AllocVmcsRegion(pState);
@@ -46,7 +46,7 @@ bool VTx::Init()
 
         continue;
     _error:
-        Globals::ulProcessorMask &= ~AffinityMask;
+        Globals::Hyperv::ulProcessorMask &= ~AffinityMask;
     }
 
     DbgMsg("[VMX] Successfully initialized VMX");
@@ -99,16 +99,16 @@ void VTx::VmxOff()
     for (; i < sizeof(ULONG); i++)
     {
         AffinityMask = 2 << i;
-        if (!(AffinityMask & Globals::ulProcessorMask))
+        if (!(AffinityMask & Globals::Hyperv::ulProcessorMask))
             continue;
         KeSetSystemAffinityThread(AffinityMask);
         DbgMsg("[VMX] Calling VMXOFF for logical processor: %llx", i);
 
         __vmx_off();
-        Globals::vGuestStates[i]->bVmxOn = false;
+        Globals::Hyperv::vGuestStates[i]->bVmxOn = false;
 
-        cpp::kFree((PVOID)Memory::PhyToVirt(Globals::vGuestStates[i]->pVmxonRegion));
-        cpp::kFree((PVOID)Memory::PhyToVirt(Globals::vGuestStates[i]->pVmcsRegion));
+        cpp::kFree((PVOID)Memory::PhyToVirt(Globals::Hyperv::vGuestStates[i]->pVmxonRegion));
+        cpp::kFree((PVOID)Memory::PhyToVirt(Globals::Hyperv::vGuestStates[i]->pVmcsRegion));
     }
 
     DbgMsg("[VMX] VMX Operation turned off successfully for %llx logical processors", i);
@@ -165,66 +165,66 @@ void VTx::VmLaunch(ULONG ulProcessor, PEPTP pEpt)
     // Allocate stack for the VM Exit Handler
     //
     UINT64 VMM_STACK_VA = (UINT64)cpp::kMalloc(VMM_STACK_SIZE);
-    Globals::vGuestStates[ulProcessor]->pVmmStack = VMM_STACK_VA;
+    Globals::Hyperv::vGuestStates[ulProcessor]->pVmmStack = VMM_STACK_VA;
 
-    if (Globals::vGuestStates[ulProcessor]->pVmmStack == NULL)
+    if (Globals::Hyperv::vGuestStates[ulProcessor]->pVmmStack == NULL)
     {
         DbgMsg("[VMX] Error in allocating VMM Stack.");
         return;
     }
-    RtlZeroMemory((PVOID)Globals::vGuestStates[ulProcessor]->pVmmStack, VMM_STACK_SIZE);
+    RtlZeroMemory((PVOID)Globals::Hyperv::vGuestStates[ulProcessor]->pVmmStack, VMM_STACK_SIZE);
 
     //VMM_STACK_VA = (UINT64)cpp::kMalloc(VMM_STACK_SIZE);
-    //Globals::vGuestStates[ulProcessor]->pGuestStack = VMM_STACK_VA;
+    //Globals::Hyperv::vGuestStates[ulProcessor]->pGuestStack = VMM_STACK_VA;
     //
-    //if (Globals::vGuestStates[ulProcessor]->pGuestStack == NULL)
+    //if (Globals::Hyperv::vGuestStates[ulProcessor]->pGuestStack == NULL)
     //{
     //    DbgMsg("[VMX] Error in allocating Guest Stack.");
     //    return;
     //}
-    //RtlZeroMemory((PVOID)Globals::vGuestStates[ulProcessor]->pGuestStack, VMM_STACK_SIZE);
+    //RtlZeroMemory((PVOID)Globals::Hyperv::vGuestStates[ulProcessor]->pGuestStack, VMM_STACK_SIZE);
 
     //
     // Allocate memory for MSRBitMap
     //
-    Globals::vGuestStates[ulProcessor]->vaMsrBitmap = (UINT64)cpp::kMallocNonCached(PAGE_SIZE); // should be aligned
-    if (Globals::vGuestStates[ulProcessor]->vaMsrBitmap == NULL)
+    Globals::Hyperv::vGuestStates[ulProcessor]->vaMsrBitmap = (UINT64)cpp::kMallocNonCached(PAGE_SIZE); // should be aligned
+    if (Globals::Hyperv::vGuestStates[ulProcessor]->vaMsrBitmap == NULL)
     {
         DbgMsg("[VMX] Error in allocating MSRBitMap.");
         return;
     }
-    RtlZeroMemory((PVOID)Globals::vGuestStates[ulProcessor]->vaMsrBitmap, PAGE_SIZE);
-    Globals::vGuestStates[ulProcessor]->paMsrBitmapPhysical = (UINT64)Memory::VirtToPhy((PVOID)Globals::vGuestStates[ulProcessor]->vaMsrBitmap);
+    RtlZeroMemory((PVOID)Globals::Hyperv::vGuestStates[ulProcessor]->vaMsrBitmap, PAGE_SIZE);
+    Globals::Hyperv::vGuestStates[ulProcessor]->paMsrBitmapPhysical = (UINT64)Memory::VirtToPhy((PVOID)Globals::Hyperv::vGuestStates[ulProcessor]->vaMsrBitmap);
 
     //
     // Clear the VMCS State
     //
 
-    if (!VmClear(Globals::vGuestStates[ulProcessor])) {
+    if (!VmClear(Globals::Hyperv::vGuestStates[ulProcessor])) {
         goto _error;
     }
 
     //
     // Load VMCS (Set the Current VMCS)
     //
-    if (!VmPtrld(Globals::vGuestStates[ulProcessor])) {
+    if (!VmPtrld(Globals::Hyperv::vGuestStates[ulProcessor])) {
         goto _error;
     }
 
-    VmcsSetup(Globals::vGuestStates[ulProcessor], pEpt);
+    VmcsSetup(Globals::Hyperv::vGuestStates[ulProcessor], pEpt);
 
     DbgMsg("[VMX] Calling VMLAUNCH...");
-    VmxSaveAndLaunch(Globals::vGuestStates[ulProcessor]->ulGuestRsp, Globals::vGuestStates[ulProcessor]->ulGuestRbp);
+    VmxSaveAndLaunch(Globals::Hyperv::vGuestStates[ulProcessor]->ulGuestRsp, Globals::Hyperv::vGuestStates[ulProcessor]->ulGuestRbp);
 
     //
     // VMLAUNCH will return here if a breaking VMEXIT case occurs
     //
 
-    if (IsVmxEnabled() && Globals::vGuestStates[ulProcessor]->bVmxOn) {
+    if (IsVmxEnabled() && Globals::Hyperv::vGuestStates[ulProcessor]->bVmxOn) {
         ULONG64 ErrorCode = 0;
         __vmx_vmread(VM_INSTRUCTION_ERROR, &ErrorCode);
         __vmx_off();
-        Globals::vGuestStates[ulProcessor]->bVmxOn = false;
+        Globals::Hyperv::vGuestStates[ulProcessor]->bVmxOn = false;
         DbgMsg("[VMX] VMLAUNCH Error: 0x%llx", ErrorCode);
     }
 
@@ -440,8 +440,8 @@ void VTx::VmExitHandler(PGUEST_REGS pGuestRegs)
     }
     }
 
-    Globals::vGuestStates[0]->bVmxOn = false;
-    VmxRestore(Globals::vGuestStates[0]->ulGuestRsp, Globals::vGuestStates[0]->ulGuestRbp);
+    Globals::Hyperv::vGuestStates[0]->bVmxOn = false;
+    VmxRestore(Globals::Hyperv::vGuestStates[0]->ulGuestRsp, Globals::Hyperv::vGuestStates[0]->ulGuestRbp);
 }
 
 void VTx::VmResumeExec()

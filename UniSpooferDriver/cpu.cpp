@@ -15,7 +15,7 @@ BOOLEAN HYPERV_HANDLER CPU::HandleCPUID(PGUEST_REGS pContext)
     __vmx_vmread(GUEST_CS_SELECTOR, &Mode);
     Mode = Mode & RPL_MASK;
 
-    if (pContext->rax == Globals::szEndFlag && Mode == DPL_SYSTEM)
+    if (pContext->rax == Globals::CPU::szEndFlag && Mode == DPL_SYSTEM)
     {
         return TRUE; // Indicates we have to turn off VMX
     }
@@ -43,7 +43,7 @@ BOOLEAN HYPERV_HANDLER CPU::HandleCPUID(PGUEST_REGS pContext)
         //
         // Return our interface identifier
         //
-        CpuInfo[0] = 'UnHd';
+        CpuInfo[0] = Globals::CPU::chInterfaceID;
     }
 
     //

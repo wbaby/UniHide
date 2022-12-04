@@ -31,14 +31,21 @@ namespace Globals {
 	extern bool IsInitialized;
 
 	//Hypervisor related
-	extern vector<PVM_STATE> vGuestStates;
-	extern ULONG ulProcessorMask;
+	namespace Hyperv {
+		extern vector<PVM_STATE> vGuestStates;
+		extern ULONG ulProcessorMask;
+	}
 
 	//Logging
-	extern EventLogger evLogger;
+	namespace Log {
+		extern EventLogger evLogger;
+	}
 
 	//CPU
-	extern size_t szEndFlag; //StopVirt in ASCII
+	namespace CPU {
+		extern size_t szEndFlag; //StopVirt in ASCII
+		extern DWORD32 chInterfaceID;
+	}
 
 	void Init(PDRIVER_OBJECT pDevice);
 }
