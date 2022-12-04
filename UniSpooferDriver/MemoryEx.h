@@ -19,6 +19,6 @@ DRIVER_IMPORT_API NTSTATUS NTAPI MmCopyVirtualMemory(
 namespace Memory {
 	NTSTATUS KernelReadVirtualMemory(PEPROCESS Process, PVOID SourceAddress, PVOID TargetAddress, SIZE_T Size);
 	NTSTATUS KernelWriteVirtualMemory(PEPROCESS Process, PVOID SourceAddress, PVOID TargetAddress, SIZE_T Size);
-	PVOID VirtToPhy(PVOID Va);
-	PVOID PhyToVirt(PVOID Pa);
+	UINT64 VirtToPhy(PVOID Va);
+	UINT64 PhyToVirt(UINT64 Pa);
 }

@@ -345,15 +345,17 @@ typedef union SEGMENT_ATTRIBUTES
         USHORT S : 1;    /* 4;  Bit 44 */
         USHORT DPL : 2;  /* 5;  Bit 45-46 */
         USHORT P : 1;    /* 7;  Bit 47 */
+
         USHORT AVL : 1; /* 8;  Bit 52 */
         USHORT L : 1;   /* 9;  Bit 53 */
         USHORT DB : 1;  /* 10; Bit 54 */
         USHORT G : 1;   /* 11; Bit 55 */
         USHORT GAP : 4;
+
     } Fields;
 } SEGMENT_ATTRIBUTES;
 
-typedef struct _SEG_SELECTOR
+typedef struct SEG_SELECTOR
 {
     USHORT             SEL;
     SEGMENT_ATTRIBUTES ATTRIBUTES;
@@ -413,10 +415,10 @@ namespace VTx
     extern "C" void VmxSaveAndLaunch(DWORD64& rsp, DWORD64& rbp);
     extern "C" void VmxRestore(DWORD64 rsp, DWORD64 rbp);
     extern "C" void VmExitWrapper();
-    extern "C" DWORD64 GetGdtBase();
-    extern "C" DWORD32 GetGdtLimit();
-    extern "C" DWORD64 GetIdtBase();
-    extern "C" DWORD32 GetIdtLimit();
+    extern "C" ULONG64 GetGdtBase();
+    extern "C" USHORT GetGdtLimit();
+    extern "C" ULONG64 GetIdtBase();
+    extern "C" USHORT GetIdtLimit();
     extern "C" USHORT GetCs();
     extern "C" USHORT GetDs();
     extern "C" USHORT GetEs();
@@ -425,7 +427,7 @@ namespace VTx
     extern "C" USHORT GetGs();
     extern "C" USHORT GetLdtr();
     extern "C" USHORT GetTr();
-    extern "C" USHORT GetRflags();
+    extern "C" ULONG64 GetRflags();
     bool VmxOn(PVOID pRegion);
     void VmxOff();
     void Vmptrst();

@@ -239,14 +239,15 @@ void Checks::CheckGuestVmcsFieldsForVmEntry()
     IA32_VMX_PROCBASED_CTLS2_REGISTER secondaryProcBasedControls;
     RFLAGS rflags;
     BOOLEAN unrestrictedGuest;
+    BOOLEAN bResult = 0;
 
-     __vmx_vmread(VMCS_GUEST_RFLAGS, &rflags.Flags);
+    bResult |= __vmx_vmread(VMCS_GUEST_RFLAGS, &rflags.Flags);
 
-    __vmx_vmread(VMCS_CTRL_VMENTRY_INTERRUPTION_INFORMATION_FIELD, (size_t*)&interruptInfo.Flags);
-    __vmx_vmread(VMCS_CTRL_VMENTRY_CONTROLS, &vmEntryControls.Flags);
-    __vmx_vmread(VMCS_CTRL_PIN_BASED_VM_EXECUTION_CONTROLS, &pinBasedControls.Flags);
-    __vmx_vmread(VMCS_CTRL_PROCESSOR_BASED_VM_EXECUTION_CONTROLS, &primaryProcBasedControls.Flags);
-    __vmx_vmread(VMCS_CTRL_SECONDARY_PROCESSOR_BASED_VM_EXECUTION_CONTROLS, &secondaryProcBasedControls.Flags);
+    bResult |= __vmx_vmread(VMCS_CTRL_VMENTRY_INTERRUPTION_INFORMATION_FIELD, (size_t*)&interruptInfo.Flags);
+    bResult |= __vmx_vmread(VMCS_CTRL_VMENTRY_CONTROLS, &vmEntryControls.Flags);
+    bResult |= __vmx_vmread(VMCS_CTRL_PIN_BASED_VM_EXECUTION_CONTROLS, &pinBasedControls.Flags);
+    bResult |= __vmx_vmread(VMCS_CTRL_PROCESSOR_BASED_VM_EXECUTION_CONTROLS, &primaryProcBasedControls.Flags);
+    bResult |= __vmx_vmread(VMCS_CTRL_SECONDARY_PROCESSOR_BASED_VM_EXECUTION_CONTROLS, &secondaryProcBasedControls.Flags);
 
     unrestrictedGuest = ((primaryProcBasedControls.ActivateSecondaryControls == 1) &&
         (secondaryProcBasedControls.UnrestrictedGuest == 1));
@@ -258,8 +259,8 @@ void Checks::CheckGuestVmcsFieldsForVmEntry()
     CR4 cr4;
     IA32_DEBUGCTL_REGISTER debugControl;
 
-    __vmx_vmread(VMCS_GUEST_CR0, &cr0.Flags);
-    __vmx_vmread(VMCS_GUEST_CR4, &cr4.Flags);
+    bResult |= __vmx_vmread(VMCS_GUEST_CR0, &cr0.Flags);
+    bResult |= __vmx_vmread(VMCS_GUEST_CR4, &cr4.Flags);
 
     ASSERT(cr0.Flags == AdjustGuestCr0(cr0).Flags);
     if ((cr0.PagingEnable == 1) &&
@@ -276,7 +277,7 @@ void Checks::CheckGuestVmcsFieldsForVmEntry()
 
     if (vmEntryControls.LoadDebugControls == 1)
     {
-        __vmx_vmread(VMCS_GUEST_DEBUGCTL, &debugControl.Flags);
+        bResult |= __vmx_vmread(VMCS_GUEST_DEBUGCTL, &debugControl.Flags);
         ASSERT(debugControl.Reserved1 == 0);
         ASSERT(debugControl.Reserved2 == 0);
     }
@@ -289,7 +290,7 @@ void Checks::CheckGuestVmcsFieldsForVmEntry()
     {
         DR7 dr7;
 
-        __vmx_vmread(VMCS_GUEST_DR7, &dr7.Flags);
+        bResult |= __vmx_vmread(VMCS_GUEST_DR7, &dr7.Flags);
         ASSERT(dr7.Reserved4 == 0);
     }
     //
@@ -306,7 +307,7 @@ void Checks::CheckGuestVmcsFieldsForVmEntry()
     {
         IA32_PAT_REGISTER pat;
 
-        __vmx_vmread(VMCS_GUEST_PAT, &pat.Flags);
+        bResult |= __vmx_vmread(VMCS_GUEST_PAT, &pat.Flags);
         ASSERT(IsValidGuestPat(pat.Pa0));
         ASSERT(IsValidGuestPat(pat.Pa1));
         ASSERT(IsValidGuestPat(pat.Pa2));
@@ -320,7 +321,7 @@ void Checks::CheckGuestVmcsFieldsForVmEntry()
     {
         IA32_EFER_REGISTER efer;
 
-        __vmx_vmread(VMCS_GUEST_EFER, &efer.Flags);
+        bResult |= __vmx_vmread(VMCS_GUEST_EFER, &efer.Flags);
         ASSERT(efer.Reserved1 == 0);
         ASSERT(efer.Reserved2 == 0);
         ASSERT(efer.Reserved3 == 0);
@@ -353,13 +354,13 @@ void Checks::CheckGuestVmcsFieldsForVmEntry()
     VMX_SEGMENT_ACCESS_RIGHTS accessRights;
     UINT32 segmentLimit;
 
-    __vmx_vmread(VMCS_GUEST_TR_SELECTOR, (size_t*)&selector.Flags);
+    bResult |= __vmx_vmread(VMCS_GUEST_TR_SELECTOR, (size_t*)&selector.Flags);
     ASSERT(selector.Table == 0);
 
-    __vmx_vmread(VMCS_GUEST_LDTR_ACCESS_RIGHTS, (size_t*)&accessRights.Flags);
+    bResult |= __vmx_vmread(VMCS_GUEST_LDTR_ACCESS_RIGHTS, (size_t*)&accessRights.Flags);
     if (accessRights.Unusable == 0)
     {
-        __vmx_vmread(VMCS_GUEST_LDTR_SELECTOR, (size_t*)&selector.Flags);
+        bResult |= __vmx_vmread(VMCS_GUEST_LDTR_SELECTOR, (size_t*)&selector.Flags);
         ASSERT(selector.Table == 0);
     }
 
@@ -368,8 +369,8 @@ void Checks::CheckGuestVmcsFieldsForVmEntry()
     {
         SEGMENT_SELECTOR selectorCs;
 
-        __vmx_vmread(VMCS_GUEST_CS_SELECTOR, (size_t*)&selectorCs.Flags);
-        __vmx_vmread(VMCS_GUEST_SS_SELECTOR, (size_t*)&selector.Flags);
+        bResult |= __vmx_vmread(VMCS_GUEST_CS_SELECTOR, (size_t*)&selectorCs.Flags);
+        bResult |= __vmx_vmread(VMCS_GUEST_SS_SELECTOR, (size_t*)&selector.Flags);
         ASSERT(selector.RequestPrivilegeLevel == selectorCs.RequestPrivilegeLevel);
     }
     if (rflags.Virtual8086ModeFlag == 1)
@@ -509,7 +510,7 @@ void Checks::CheckGuestVmcsFieldsForVmEntry()
     //
     VMX_SEGMENT_ACCESS_RIGHTS csAccessRights;
 
-    __vmx_vmread(VMCS_GUEST_CS_ACCESS_RIGHTS, (size_t*)&csAccessRights.Flags);
+    bResult |= __vmx_vmread(VMCS_GUEST_CS_ACCESS_RIGHTS, (size_t*)&csAccessRights.Flags);
     if ((vmEntryControls.Ia32EModeGuest == 0) ||
         (csAccessRights.LongMode == 0))
     {
@@ -534,9 +535,9 @@ void Checks::CheckGuestVmcsFieldsForVmEntry()
     VMX_GUEST_ACTIVITY_STATE activityState;
     VMX_SEGMENT_ACCESS_RIGHTS ssAccessRights;
 
-    __vmx_vmread(VMCS_GUEST_SS_ACCESS_RIGHTS, (size_t*)&ssAccessRights.Flags);
-    __vmx_vmread(VMCS_GUEST_ACTIVITY_STATE, (size_t*)&activityState);
-    __vmx_vmread(VMCS_GUEST_INTERRUPTIBILITY_STATE, (size_t*)&interruptibilityState.Flags);
+    bResult |= __vmx_vmread(VMCS_GUEST_SS_ACCESS_RIGHTS, (size_t*)&ssAccessRights.Flags);
+    bResult |= __vmx_vmread(VMCS_GUEST_ACTIVITY_STATE, (size_t*)&activityState);
+    bResult |= __vmx_vmread(VMCS_GUEST_INTERRUPTIBILITY_STATE, (size_t*)&interruptibilityState.Flags);
 
     //
     // Activity state
@@ -641,5 +642,11 @@ void Checks::CheckGuestVmcsFieldsForVmEntry()
     {
         // Those checks are not implemented.
     }
-    DbgMsg("[VMCS] Checks: completed");
+
+    if (bResult) {
+        DbgMsg("[VMCS] Checks: some VMREADs failed along the way, data may not be correct");
+    }
+    else {
+        DbgMsg("[VMCS] Checks: completed");
+    }
 }

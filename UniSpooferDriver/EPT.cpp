@@ -67,7 +67,7 @@ UINT64 EPT::InitEptp(ULONG ulProcessor)
         EptPt[i].Fields.Execute = 1;
         EptPt[i].Fields.ExecuteForUserMode = 0;
         EptPt[i].Fields.IgnorePAT = 0;
-        EptPt[i].Fields.PhysicalAddress = ((UINT64)Memory::VirtToPhy((PVOID)((GuestMemory + (i * PAGE_SIZE)))) / PAGE_SIZE);
+        EptPt[i].Fields.PhysicalAddress = (Memory::VirtToPhy((PVOID)((GuestMemory + (i * PAGE_SIZE)))) / PAGE_SIZE);
         EptPt[i].Fields.Read = 1;
         EptPt[i].Fields.SuppressVE = 0;
         EptPt[i].Fields.Write = 1;
@@ -82,7 +82,7 @@ UINT64 EPT::InitEptp(ULONG ulProcessor)
     EptPd->Fields.Ignored1 = 0;
     EptPd->Fields.Ignored2 = 0;
     EptPd->Fields.Ignored3 = 0;
-    EptPd->Fields.PhysicalAddress = ((UINT64)Memory::VirtToPhy((PVOID)((UINT64)(EptPt))) / PAGE_SIZE);
+    EptPd->Fields.PhysicalAddress = (Memory::VirtToPhy((PVOID)EptPt) / PAGE_SIZE);
     EptPd->Fields.Read = 1;
     EptPd->Fields.Reserved1 = 0;
     EptPd->Fields.Reserved2 = 0;
@@ -96,7 +96,7 @@ UINT64 EPT::InitEptp(ULONG ulProcessor)
     EptPdpt->Fields.Ignored1 = 0;
     EptPdpt->Fields.Ignored2 = 0;
     EptPdpt->Fields.Ignored3 = 0;
-    EptPdpt->Fields.PhysicalAddress = ((UINT64)Memory::VirtToPhy((PVOID)((UINT64)(EptPd))) / PAGE_SIZE);
+    EptPdpt->Fields.PhysicalAddress = (Memory::VirtToPhy((PVOID)EptPd) / PAGE_SIZE);
     EptPdpt->Fields.Read = 1;
     EptPdpt->Fields.Reserved1 = 0;
     EptPdpt->Fields.Reserved2 = 0;
@@ -110,7 +110,7 @@ UINT64 EPT::InitEptp(ULONG ulProcessor)
     EptPml4->Fields.Ignored1 = 0;
     EptPml4->Fields.Ignored2 = 0;
     EptPml4->Fields.Ignored3 = 0;
-    EptPml4->Fields.PhysicalAddress = ((UINT64)Memory::VirtToPhy((PVOID)((UINT64)(EptPdpt))) / PAGE_SIZE);
+    EptPml4->Fields.PhysicalAddress = (Memory::VirtToPhy((PVOID)EptPdpt) / PAGE_SIZE);
     EptPml4->Fields.Read = 1;
     EptPml4->Fields.Reserved1 = 0;
     EptPml4->Fields.Reserved2 = 0;
@@ -121,7 +121,7 @@ UINT64 EPT::InitEptp(ULONG ulProcessor)
     EPTPointer->Fields.DirtyAndAccessEnabled = 1;
     EPTPointer->Fields.MemoryType = 6; // 6 = Write-back (WB)
     EPTPointer->Fields.PageWalkLength = 3; // 4 (tables walked) - 1 = 3
-    EPTPointer->Fields.PML4Address = ((UINT64)Memory::VirtToPhy((PVOID)((UINT64)(EptPml4))) / PAGE_SIZE);
+    EPTPointer->Fields.PML4Address = (Memory::VirtToPhy((PVOID)EptPml4) / PAGE_SIZE);
     EPTPointer->Fields.Reserved1 = 0;
     EPTPointer->Fields.Reserved2 = 0;
 

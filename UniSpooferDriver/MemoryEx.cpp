@@ -15,15 +15,15 @@ NTSTATUS Memory::KernelWriteVirtualMemory(PEPROCESS Process, PVOID SourceAddress
 	return MmCopyVirtualMemory(PsGetCurrentProcess(), SourceAddress, Process, TargetAddress, Size, KernelMode, reinterpret_cast<PSIZE_T>(&Bytes));
 }
 
-PVOID Memory::VirtToPhy(PVOID Va)
+UINT64 Memory::VirtToPhy(PVOID Va)
 {
-	return (PVOID)MmGetPhysicalAddress(Va).QuadPart;
+	return MmGetPhysicalAddress(Va).QuadPart;
 }
 
-PVOID Memory::PhyToVirt(PVOID Pa)
+UINT64 Memory::PhyToVirt(UINT64 Pa)
 {
 	PHYSICAL_ADDRESS PhysicalAddr;
-	PhysicalAddr.QuadPart = (ULONGLONG)Pa;
+	PhysicalAddr.QuadPart = Pa;
 
-	return MmGetVirtualForPhysical(PhysicalAddr);
+	return (UINT64)MmGetVirtualForPhysical(PhysicalAddr);
 }
